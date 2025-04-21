@@ -13859,17 +13859,6 @@ const cardContentText = css`
   color: ${theme.color.white};
   ${theme.font.card.number}
 `;
-const CARD_NUMBER_ERROR = {
-  onlyNumbers: "숫자만 입력 가능합니다."
-};
-const CARD_EXPIRATION_ERROR = {
-  onlyNumbers: "숫자만 입력 가능합니다.",
-  invalidMonth: "1~12 사이의 값을 입력해 주세요.",
-  invalidYear: "25년 이상의 값을 입력해 주세요."
-};
-const CARD_CVC_ERROR = {
-  onlyNumbers: "숫자만 입력 가능합니다."
-};
 const CARD_NUMBER = {
   maxLength: 4
 };
@@ -13891,12 +13880,24 @@ const CARD_TYPE = {
     startsWith: ["51", "52", "53", "54", "55"]
   }
 };
+const CARD_NUMBER_ERROR = {
+  onlyNumbers: "숫자만 입력 가능합니다."
+};
+const CARD_EXPIRATION_ERROR = {
+  onlyNumbers: "숫자만 입력 가능합니다.",
+  invalidMonth: `${CARD_EXPIRATION.minMonth}~${CARD_EXPIRATION.maxMonth} 사이의 값을 입력해 주세요.`,
+  invalidYear: `${CARD_EXPIRATION.minYear}년 이상의 값을 입력해 주세요.`
+};
+const CARD_CVC_ERROR = {
+  onlyNumbers: "숫자만 입력 가능합니다."
+};
 function Card({ cardNumber, cardExpirationDate }) {
   const { first, second, third, forth } = cardNumber;
-  const masterCardType = (first == null ? void 0 : first.toString()) && CARD_TYPE.masterCard.startsWith.some(
-    (prefix2) => first.toString().startsWith(prefix2)
+  const firstString = first == null ? void 0 : first.toString();
+  const masterCardType = firstString && CARD_TYPE.masterCard.startsWith.some(
+    (prefix2) => firstString.startsWith(prefix2)
   );
-  const visaCardType = (first == null ? void 0 : first.toString()) && first.toString().startsWith(CARD_TYPE.visa.startsWith);
+  const visaCardType = firstString && firstString.startsWith(CARD_TYPE.visa.startsWith);
   const checkCardType = () => {
     if (masterCardType) {
       return MasterCard;
@@ -13904,7 +13905,7 @@ function Card({ cardNumber, cardExpirationDate }) {
       return Visa;
     }
   };
-  const isCardExpirationDate = cardExpirationDate.month || cardExpirationDate.year;
+  const hasFilledExpirationField = Boolean(cardExpirationDate.month || cardExpirationDate.year);
   return /* @__PURE__ */ jsxs("section", { css: cardLayout, children: [
     /* @__PURE__ */ jsxs("div", { css: cardContainer, children: [
       /* @__PURE__ */ jsx$1("div", { css: cardFrame }),
@@ -13917,7 +13918,7 @@ function Card({ cardNumber, cardExpirationDate }) {
         /* @__PURE__ */ jsx$1("span", { css: cardContentText, children: third }),
         /* @__PURE__ */ jsx$1("span", { css: cardContentText, children: forth })
       ] }),
-      /* @__PURE__ */ jsx$1("div", { css: cardContent, children: isCardExpirationDate && /* @__PURE__ */ jsxs("span", { css: cardContentText, children: [
+      /* @__PURE__ */ jsx$1("div", { css: cardContent, children: hasFilledExpirationField && /* @__PURE__ */ jsxs("span", { css: cardContentText, children: [
         cardExpirationDate.month,
         "/",
         cardExpirationDate.year
@@ -13942,14 +13943,29 @@ const inputLabel = css`
   ${theme.font.input.label}
   color: ${theme.color.text};
 `;
+const defaultContextValue = {
+  id: ""
+};
+const InputContext = reactExports.createContext(defaultContextValue);
+const useInputContext = () => reactExports.useContext(InputContext);
+const InputGroup = ({ id: providedId, children }) => {
+  const generatedId = reactExports.useId();
+  const id = providedId || generatedId;
+  return /* @__PURE__ */ jsx$1(InputContext.Provider, { value: { id }, children });
+};
 function Label(props) {
-  const { children, ...rest } = props;
-  return /* @__PURE__ */ jsx$1("label", { css: inputLabel, ...rest, children });
+  const { children, htmlFor: explicitHtmlFor, ...rest } = props;
+  const { id: contextId } = useInputContext();
+  const htmlFor = explicitHtmlFor || contextId;
+  return /* @__PURE__ */ jsx$1("label", { css: inputLabel, htmlFor, ...rest, children });
 }
 function Input(props) {
-  const { ...rest } = props;
-  return /* @__PURE__ */ jsx$1("input", { css: inputContainer$1, ...rest });
+  const { id: explicitId, ...rest } = props;
+  const { id: contextId } = useInputContext();
+  const id = explicitId || contextId;
+  return /* @__PURE__ */ jsx$1("input", { css: inputContainer$1, id, ...rest });
 }
+Input.Group = InputGroup;
 Input.Label = Label;
 const sectionTitle = css`
   display: flex;
@@ -13989,11 +14005,13 @@ const inputContainer = css`
   justify-content: center;
   align-items: flex-start;
   gap: 0.8rem;
+  width: 100%;
 `;
 const inputSection = css`
   display: flex;
   flex-direction: row;
   gap: 0.8rem;
+  width: 100%;
 `;
 function CardNumberInput({
   cardNumber,
@@ -14013,10 +14031,10 @@ function CardNumberInput({
       /* @__PURE__ */ jsx$1("span", { css: sectionTitleText, children: "결제할 카드 번호를 입력해 주세요" }),
       /* @__PURE__ */ jsx$1("span", { css: sectionTitleSubText, children: "본인 명의의 카드만 결제 가능합니다." })
     ] }),
-    /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
+    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
       /* @__PURE__ */ jsx$1(Input.Label, { children: "카드 번호" }),
       /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
-        /* @__PURE__ */ jsx$1(
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsx$1(
           Input,
           {
             type: "text",
@@ -14026,8 +14044,8 @@ function CardNumberInput({
             onChange,
             css: errorState.first ? errorInputStyle : void 0
           }
-        ),
-        /* @__PURE__ */ jsx$1(
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-second", children: /* @__PURE__ */ jsx$1(
           Input,
           {
             type: "text",
@@ -14037,8 +14055,8 @@ function CardNumberInput({
             onChange,
             css: errorState.second ? errorInputStyle : void 0
           }
-        ),
-        /* @__PURE__ */ jsx$1(
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-third", children: /* @__PURE__ */ jsx$1(
           Input,
           {
             type: "text",
@@ -14048,8 +14066,8 @@ function CardNumberInput({
             onChange,
             css: errorState.third ? errorInputStyle : void 0
           }
-        ),
-        /* @__PURE__ */ jsx$1(
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-forth", children: /* @__PURE__ */ jsx$1(
           Input,
           {
             type: "text",
@@ -14059,10 +14077,10 @@ function CardNumberInput({
             onChange,
             css: errorState.forth ? errorInputStyle : void 0
           }
-        )
+        ) })
       ] }),
-      (errorState.first || errorState.second || errorState.third || errorState.forth) && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getErrorMessage() })
-    ] })
+      Object.values(errorState).some(Boolean) && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getErrorMessage() })
+    ] }) })
   ] });
 }
 const cardPeriodInputLayout = css`
@@ -14109,10 +14127,10 @@ function CardPeriodInput({
       /* @__PURE__ */ jsx$1("span", { css: sectionTitleText, children: "카드 유효기간을 입력해 주세요" }),
       /* @__PURE__ */ jsx$1("span", { css: sectionTitleSubText, children: "월/년도(MMYY)를 순서대로 입력해 주세요." })
     ] }),
-    /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
+    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
       /* @__PURE__ */ jsx$1(Input.Label, { children: "유효기간" }),
       /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
-        /* @__PURE__ */ jsx$1(
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsx$1(
           Input,
           {
             type: "text",
@@ -14122,8 +14140,8 @@ function CardPeriodInput({
             onChange,
             css: errorState.month ? errorInputStyle : void 0
           }
-        ),
-        /* @__PURE__ */ jsx$1(
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration-year", children: /* @__PURE__ */ jsx$1(
           Input,
           {
             type: "text",
@@ -14133,11 +14151,11 @@ function CardPeriodInput({
             onChange,
             css: errorState.year ? errorInputStyle : void 0
           }
-        )
+        ) })
       ] }),
       errorState.month && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getMonthError() }),
       errorState.year && !errorState.month && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getYearError() })
-    ] })
+    ] }) })
   ] });
 }
 function CardCVCInput({
@@ -14154,7 +14172,7 @@ function CardCVCInput({
   };
   return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
     /* @__PURE__ */ jsx$1("div", { css: sectionTitle, children: /* @__PURE__ */ jsx$1("span", { css: sectionTitleText, children: "CVC 번호를 입력해 주세요" }) }),
-    /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
+    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-cvc", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
       /* @__PURE__ */ jsx$1(Input.Label, { children: "CVC" }),
       /* @__PURE__ */ jsx$1("article", { css: inputSection, children: /* @__PURE__ */ jsx$1(
         Input,
@@ -14168,7 +14186,7 @@ function CardCVCInput({
         }
       ) }),
       hasError && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getErrorMessage() })
-    ] })
+    ] }) })
   ] });
 }
 const appLayout = css`
@@ -14185,6 +14203,12 @@ const mainLayout = css`
   gap: 1.6rem;
 `;
 const isOnlyDigits = (value) => /^\d*$/.test(value);
+const areAllValuesNotNull = (obj) => {
+  return Object.values(obj).every((value) => value !== null);
+};
+const areAllValuesFalse = (obj) => {
+  return Object.values(obj).every((value) => !value);
+};
 const useCardNumber = () => {
   const [cardNumber, setCardNumber] = reactExports.useState({
     first: null,
@@ -14232,14 +14256,10 @@ const useCardNumber = () => {
     });
   };
   const isCardNumberValid = () => {
-    const { first, second, third, forth } = cardNumber;
-    return first !== null && second !== null && third !== null && forth !== null && !cardNumberError.first && !cardNumberError.second && !cardNumberError.third && !cardNumberError.forth;
+    return areAllValuesNotNull(cardNumber) && areAllValuesFalse(cardNumberError);
   };
   const getCardNumberErrorMessage = () => {
-    if (!cardNumberError.first && !cardNumberError.second && !cardNumberError.third && !cardNumberError.forth) {
-      return null;
-    }
-    return CARD_NUMBER_ERROR.onlyNumbers;
+    return areAllValuesFalse(cardNumberError) ? null : CARD_NUMBER_ERROR.onlyNumbers;
   };
   return {
     cardNumber,
