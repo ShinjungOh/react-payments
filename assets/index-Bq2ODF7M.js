@@ -1572,7 +1572,7 @@ function requireHoistNonReactStatics_cjs() {
   return hoistNonReactStatics_cjs;
 }
 requireHoistNonReactStatics_cjs();
-var isBrowser = true;
+var isBrowser$1 = true;
 function getRegisteredStyles(registered, registeredStyles, classNames) {
   var rawClassName = "";
   classNames.split(" ").forEach(function(className) {
@@ -1596,7 +1596,7 @@ var registerStyles = function registerStyles2(cache, serialized, isStringTag) {
     // in node since emotion-server relies on whether a style is in
     // the registered cache to know whether a style is global or not
     // also, note that this check will be dead code eliminated in the browser
-    isBrowser === false) && cache.registered[className] === void 0
+    isBrowser$1 === false) && cache.registered[className] === void 0
   ) {
     cache.registered[className] = serialized.styles;
   }
@@ -1878,6 +1878,9 @@ var withEmotionCache = function withEmotionCache2(func) {
   });
 };
 var ThemeContext = /* @__PURE__ */ reactExports.createContext({});
+var useTheme = function useTheme2() {
+  return reactExports.useContext(ThemeContext);
+};
 var getTheme = function getTheme2(outerTheme, theme2) {
   if (typeof theme2 === "function") {
     var mergedTheme = theme2(outerTheme);
@@ -13504,6 +13507,2248 @@ function requireClient() {
 }
 var clientExports = requireClient();
 const ReactDOM = /* @__PURE__ */ getDefaultExportFromCjs(clientExports);
+var dist = {};
+var hasRequiredDist;
+function requireDist() {
+  if (hasRequiredDist) return dist;
+  hasRequiredDist = 1;
+  Object.defineProperty(dist, "__esModule", { value: true });
+  dist.parse = parse2;
+  dist.serialize = serialize2;
+  const cookieNameRegExp = /^[\u0021-\u003A\u003C\u003E-\u007E]+$/;
+  const cookieValueRegExp = /^[\u0021-\u003A\u003C-\u007E]*$/;
+  const domainValueRegExp = /^([.]?[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)([.][a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i;
+  const pathValueRegExp = /^[\u0020-\u003A\u003D-\u007E]*$/;
+  const __toString = Object.prototype.toString;
+  const NullObject = /* @__PURE__ */ (() => {
+    const C = function() {
+    };
+    C.prototype = /* @__PURE__ */ Object.create(null);
+    return C;
+  })();
+  function parse2(str, options) {
+    const obj = new NullObject();
+    const len = str.length;
+    if (len < 2)
+      return obj;
+    const dec = (options == null ? void 0 : options.decode) || decode;
+    let index = 0;
+    do {
+      const eqIdx = str.indexOf("=", index);
+      if (eqIdx === -1)
+        break;
+      const colonIdx = str.indexOf(";", index);
+      const endIdx = colonIdx === -1 ? len : colonIdx;
+      if (eqIdx > endIdx) {
+        index = str.lastIndexOf(";", eqIdx - 1) + 1;
+        continue;
+      }
+      const keyStartIdx = startIndex(str, index, eqIdx);
+      const keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
+      const key = str.slice(keyStartIdx, keyEndIdx);
+      if (obj[key] === void 0) {
+        let valStartIdx = startIndex(str, eqIdx + 1, endIdx);
+        let valEndIdx = endIndex(str, endIdx, valStartIdx);
+        const value = dec(str.slice(valStartIdx, valEndIdx));
+        obj[key] = value;
+      }
+      index = endIdx + 1;
+    } while (index < len);
+    return obj;
+  }
+  function startIndex(str, index, max) {
+    do {
+      const code = str.charCodeAt(index);
+      if (code !== 32 && code !== 9)
+        return index;
+    } while (++index < max);
+    return max;
+  }
+  function endIndex(str, index, min) {
+    while (index > min) {
+      const code = str.charCodeAt(--index);
+      if (code !== 32 && code !== 9)
+        return index + 1;
+    }
+    return min;
+  }
+  function serialize2(name, val, options) {
+    const enc = (options == null ? void 0 : options.encode) || encodeURIComponent;
+    if (!cookieNameRegExp.test(name)) {
+      throw new TypeError(`argument name is invalid: ${name}`);
+    }
+    const value = enc(val);
+    if (!cookieValueRegExp.test(value)) {
+      throw new TypeError(`argument val is invalid: ${val}`);
+    }
+    let str = name + "=" + value;
+    if (!options)
+      return str;
+    if (options.maxAge !== void 0) {
+      if (!Number.isInteger(options.maxAge)) {
+        throw new TypeError(`option maxAge is invalid: ${options.maxAge}`);
+      }
+      str += "; Max-Age=" + options.maxAge;
+    }
+    if (options.domain) {
+      if (!domainValueRegExp.test(options.domain)) {
+        throw new TypeError(`option domain is invalid: ${options.domain}`);
+      }
+      str += "; Domain=" + options.domain;
+    }
+    if (options.path) {
+      if (!pathValueRegExp.test(options.path)) {
+        throw new TypeError(`option path is invalid: ${options.path}`);
+      }
+      str += "; Path=" + options.path;
+    }
+    if (options.expires) {
+      if (!isDate(options.expires) || !Number.isFinite(options.expires.valueOf())) {
+        throw new TypeError(`option expires is invalid: ${options.expires}`);
+      }
+      str += "; Expires=" + options.expires.toUTCString();
+    }
+    if (options.httpOnly) {
+      str += "; HttpOnly";
+    }
+    if (options.secure) {
+      str += "; Secure";
+    }
+    if (options.partitioned) {
+      str += "; Partitioned";
+    }
+    if (options.priority) {
+      const priority = typeof options.priority === "string" ? options.priority.toLowerCase() : void 0;
+      switch (priority) {
+        case "low":
+          str += "; Priority=Low";
+          break;
+        case "medium":
+          str += "; Priority=Medium";
+          break;
+        case "high":
+          str += "; Priority=High";
+          break;
+        default:
+          throw new TypeError(`option priority is invalid: ${options.priority}`);
+      }
+    }
+    if (options.sameSite) {
+      const sameSite = typeof options.sameSite === "string" ? options.sameSite.toLowerCase() : options.sameSite;
+      switch (sameSite) {
+        case true:
+        case "strict":
+          str += "; SameSite=Strict";
+          break;
+        case "lax":
+          str += "; SameSite=Lax";
+          break;
+        case "none":
+          str += "; SameSite=None";
+          break;
+        default:
+          throw new TypeError(`option sameSite is invalid: ${options.sameSite}`);
+      }
+    }
+    return str;
+  }
+  function decode(str) {
+    if (str.indexOf("%") === -1)
+      return str;
+    try {
+      return decodeURIComponent(str);
+    } catch (e) {
+      return str;
+    }
+  }
+  function isDate(val) {
+    return __toString.call(val) === "[object Date]";
+  }
+  return dist;
+}
+requireDist();
+var PopStateEventType = "popstate";
+function createBrowserHistory(options = {}) {
+  function createBrowserLocation(window2, globalHistory) {
+    let { pathname, search, hash: hash2 } = window2.location;
+    return createLocation(
+      "",
+      { pathname, search, hash: hash2 },
+      // state defaults to `null` because `window.history.state` does
+      globalHistory.state && globalHistory.state.usr || null,
+      globalHistory.state && globalHistory.state.key || "default"
+    );
+  }
+  function createBrowserHref(window2, to) {
+    return typeof to === "string" ? to : createPath(to);
+  }
+  return getUrlBasedHistory(
+    createBrowserLocation,
+    createBrowserHref,
+    null,
+    options
+  );
+}
+function invariant(value, message) {
+  if (value === false || value === null || typeof value === "undefined") {
+    throw new Error(message);
+  }
+}
+function warning(cond, message) {
+  if (!cond) {
+    if (typeof console !== "undefined") console.warn(message);
+    try {
+      throw new Error(message);
+    } catch (e) {
+    }
+  }
+}
+function createKey() {
+  return Math.random().toString(36).substring(2, 10);
+}
+function getHistoryState(location, index) {
+  return {
+    usr: location.state,
+    key: location.key,
+    idx: index
+  };
+}
+function createLocation(current, to, state = null, key) {
+  let location = {
+    pathname: typeof current === "string" ? current : current.pathname,
+    search: "",
+    hash: "",
+    ...typeof to === "string" ? parsePath(to) : to,
+    state,
+    // TODO: This could be cleaned up.  push/replace should probably just take
+    // full Locations now and avoid the need to run through this flow at all
+    // But that's a pretty big refactor to the current test suite so going to
+    // keep as is for the time being and just let any incoming keys take precedence
+    key: to && to.key || key || createKey()
+  };
+  return location;
+}
+function createPath({
+  pathname = "/",
+  search = "",
+  hash: hash2 = ""
+}) {
+  if (search && search !== "?")
+    pathname += search.charAt(0) === "?" ? search : "?" + search;
+  if (hash2 && hash2 !== "#")
+    pathname += hash2.charAt(0) === "#" ? hash2 : "#" + hash2;
+  return pathname;
+}
+function parsePath(path) {
+  let parsedPath = {};
+  if (path) {
+    let hashIndex = path.indexOf("#");
+    if (hashIndex >= 0) {
+      parsedPath.hash = path.substring(hashIndex);
+      path = path.substring(0, hashIndex);
+    }
+    let searchIndex = path.indexOf("?");
+    if (searchIndex >= 0) {
+      parsedPath.search = path.substring(searchIndex);
+      path = path.substring(0, searchIndex);
+    }
+    if (path) {
+      parsedPath.pathname = path;
+    }
+  }
+  return parsedPath;
+}
+function getUrlBasedHistory(getLocation, createHref2, validateLocation, options = {}) {
+  let { window: window2 = document.defaultView, v5Compat = false } = options;
+  let globalHistory = window2.history;
+  let action = "POP";
+  let listener = null;
+  let index = getIndex();
+  if (index == null) {
+    index = 0;
+    globalHistory.replaceState({ ...globalHistory.state, idx: index }, "");
+  }
+  function getIndex() {
+    let state = globalHistory.state || { idx: null };
+    return state.idx;
+  }
+  function handlePop() {
+    action = "POP";
+    let nextIndex = getIndex();
+    let delta = nextIndex == null ? null : nextIndex - index;
+    index = nextIndex;
+    if (listener) {
+      listener({ action, location: history.location, delta });
+    }
+  }
+  function push(to, state) {
+    action = "PUSH";
+    let location = createLocation(history.location, to, state);
+    index = getIndex() + 1;
+    let historyState = getHistoryState(location, index);
+    let url = history.createHref(location);
+    try {
+      globalHistory.pushState(historyState, "", url);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "DataCloneError") {
+        throw error;
+      }
+      window2.location.assign(url);
+    }
+    if (v5Compat && listener) {
+      listener({ action, location: history.location, delta: 1 });
+    }
+  }
+  function replace2(to, state) {
+    action = "REPLACE";
+    let location = createLocation(history.location, to, state);
+    index = getIndex();
+    let historyState = getHistoryState(location, index);
+    let url = history.createHref(location);
+    globalHistory.replaceState(historyState, "", url);
+    if (v5Compat && listener) {
+      listener({ action, location: history.location, delta: 0 });
+    }
+  }
+  function createURL(to) {
+    let base = window2.location.origin !== "null" ? window2.location.origin : window2.location.href;
+    let href2 = typeof to === "string" ? to : createPath(to);
+    href2 = href2.replace(/ $/, "%20");
+    invariant(
+      base,
+      `No window.location.(origin|href) available to create URL for href: ${href2}`
+    );
+    return new URL(href2, base);
+  }
+  let history = {
+    get action() {
+      return action;
+    },
+    get location() {
+      return getLocation(window2, globalHistory);
+    },
+    listen(fn) {
+      if (listener) {
+        throw new Error("A history only accepts one active listener");
+      }
+      window2.addEventListener(PopStateEventType, handlePop);
+      listener = fn;
+      return () => {
+        window2.removeEventListener(PopStateEventType, handlePop);
+        listener = null;
+      };
+    },
+    createHref(to) {
+      return createHref2(window2, to);
+    },
+    createURL,
+    encodeLocation(to) {
+      let url = createURL(to);
+      return {
+        pathname: url.pathname,
+        search: url.search,
+        hash: url.hash
+      };
+    },
+    push,
+    replace: replace2,
+    go(n) {
+      return globalHistory.go(n);
+    }
+  };
+  return history;
+}
+function matchRoutes(routes, locationArg, basename = "/") {
+  return matchRoutesImpl(routes, locationArg, basename, false);
+}
+function matchRoutesImpl(routes, locationArg, basename, allowPartial) {
+  let location = typeof locationArg === "string" ? parsePath(locationArg) : locationArg;
+  let pathname = stripBasename(location.pathname || "/", basename);
+  if (pathname == null) {
+    return null;
+  }
+  let branches = flattenRoutes(routes);
+  rankRouteBranches(branches);
+  let matches = null;
+  for (let i = 0; matches == null && i < branches.length; ++i) {
+    let decoded = decodePath(pathname);
+    matches = matchRouteBranch(
+      branches[i],
+      decoded,
+      allowPartial
+    );
+  }
+  return matches;
+}
+function flattenRoutes(routes, branches = [], parentsMeta = [], parentPath = "") {
+  let flattenRoute = (route, index, relativePath) => {
+    let meta = {
+      relativePath: relativePath === void 0 ? route.path || "" : relativePath,
+      caseSensitive: route.caseSensitive === true,
+      childrenIndex: index,
+      route
+    };
+    if (meta.relativePath.startsWith("/")) {
+      invariant(
+        meta.relativePath.startsWith(parentPath),
+        `Absolute route path "${meta.relativePath}" nested under path "${parentPath}" is not valid. An absolute child route path must start with the combined path of all its parent routes.`
+      );
+      meta.relativePath = meta.relativePath.slice(parentPath.length);
+    }
+    let path = joinPaths([parentPath, meta.relativePath]);
+    let routesMeta = parentsMeta.concat(meta);
+    if (route.children && route.children.length > 0) {
+      invariant(
+        // Our types know better, but runtime JS may not!
+        // @ts-expect-error
+        route.index !== true,
+        `Index routes must not have child routes. Please remove all child routes from route path "${path}".`
+      );
+      flattenRoutes(route.children, branches, routesMeta, path);
+    }
+    if (route.path == null && !route.index) {
+      return;
+    }
+    branches.push({
+      path,
+      score: computeScore(path, route.index),
+      routesMeta
+    });
+  };
+  routes.forEach((route, index) => {
+    var _a;
+    if (route.path === "" || !((_a = route.path) == null ? void 0 : _a.includes("?"))) {
+      flattenRoute(route, index);
+    } else {
+      for (let exploded of explodeOptionalSegments(route.path)) {
+        flattenRoute(route, index, exploded);
+      }
+    }
+  });
+  return branches;
+}
+function explodeOptionalSegments(path) {
+  let segments = path.split("/");
+  if (segments.length === 0) return [];
+  let [first, ...rest] = segments;
+  let isOptional = first.endsWith("?");
+  let required = first.replace(/\?$/, "");
+  if (rest.length === 0) {
+    return isOptional ? [required, ""] : [required];
+  }
+  let restExploded = explodeOptionalSegments(rest.join("/"));
+  let result = [];
+  result.push(
+    ...restExploded.map(
+      (subpath) => subpath === "" ? required : [required, subpath].join("/")
+    )
+  );
+  if (isOptional) {
+    result.push(...restExploded);
+  }
+  return result.map(
+    (exploded) => path.startsWith("/") && exploded === "" ? "/" : exploded
+  );
+}
+function rankRouteBranches(branches) {
+  branches.sort(
+    (a, b) => a.score !== b.score ? b.score - a.score : compareIndexes(
+      a.routesMeta.map((meta) => meta.childrenIndex),
+      b.routesMeta.map((meta) => meta.childrenIndex)
+    )
+  );
+}
+var paramRe = /^:[\w-]+$/;
+var dynamicSegmentValue = 3;
+var indexRouteValue = 2;
+var emptySegmentValue = 1;
+var staticSegmentValue = 10;
+var splatPenalty = -2;
+var isSplat = (s) => s === "*";
+function computeScore(path, index) {
+  let segments = path.split("/");
+  let initialScore = segments.length;
+  if (segments.some(isSplat)) {
+    initialScore += splatPenalty;
+  }
+  if (index) {
+    initialScore += indexRouteValue;
+  }
+  return segments.filter((s) => !isSplat(s)).reduce(
+    (score, segment) => score + (paramRe.test(segment) ? dynamicSegmentValue : segment === "" ? emptySegmentValue : staticSegmentValue),
+    initialScore
+  );
+}
+function compareIndexes(a, b) {
+  let siblings = a.length === b.length && a.slice(0, -1).every((n, i) => n === b[i]);
+  return siblings ? (
+    // If two routes are siblings, we should try to match the earlier sibling
+    // first. This allows people to have fine-grained control over the matching
+    // behavior by simply putting routes with identical paths in the order they
+    // want them tried.
+    a[a.length - 1] - b[b.length - 1]
+  ) : (
+    // Otherwise, it doesn't really make sense to rank non-siblings by index,
+    // so they sort equally.
+    0
+  );
+}
+function matchRouteBranch(branch, pathname, allowPartial = false) {
+  let { routesMeta } = branch;
+  let matchedParams = {};
+  let matchedPathname = "/";
+  let matches = [];
+  for (let i = 0; i < routesMeta.length; ++i) {
+    let meta = routesMeta[i];
+    let end = i === routesMeta.length - 1;
+    let remainingPathname = matchedPathname === "/" ? pathname : pathname.slice(matchedPathname.length) || "/";
+    let match2 = matchPath(
+      { path: meta.relativePath, caseSensitive: meta.caseSensitive, end },
+      remainingPathname
+    );
+    let route = meta.route;
+    if (!match2 && end && allowPartial && !routesMeta[routesMeta.length - 1].route.index) {
+      match2 = matchPath(
+        {
+          path: meta.relativePath,
+          caseSensitive: meta.caseSensitive,
+          end: false
+        },
+        remainingPathname
+      );
+    }
+    if (!match2) {
+      return null;
+    }
+    Object.assign(matchedParams, match2.params);
+    matches.push({
+      // TODO: Can this as be avoided?
+      params: matchedParams,
+      pathname: joinPaths([matchedPathname, match2.pathname]),
+      pathnameBase: normalizePathname(
+        joinPaths([matchedPathname, match2.pathnameBase])
+      ),
+      route
+    });
+    if (match2.pathnameBase !== "/") {
+      matchedPathname = joinPaths([matchedPathname, match2.pathnameBase]);
+    }
+  }
+  return matches;
+}
+function matchPath(pattern, pathname) {
+  if (typeof pattern === "string") {
+    pattern = { path: pattern, caseSensitive: false, end: true };
+  }
+  let [matcher, compiledParams] = compilePath(
+    pattern.path,
+    pattern.caseSensitive,
+    pattern.end
+  );
+  let match2 = pathname.match(matcher);
+  if (!match2) return null;
+  let matchedPathname = match2[0];
+  let pathnameBase = matchedPathname.replace(/(.)\/+$/, "$1");
+  let captureGroups = match2.slice(1);
+  let params = compiledParams.reduce(
+    (memo2, { paramName, isOptional }, index) => {
+      if (paramName === "*") {
+        let splatValue = captureGroups[index] || "";
+        pathnameBase = matchedPathname.slice(0, matchedPathname.length - splatValue.length).replace(/(.)\/+$/, "$1");
+      }
+      const value = captureGroups[index];
+      if (isOptional && !value) {
+        memo2[paramName] = void 0;
+      } else {
+        memo2[paramName] = (value || "").replace(/%2F/g, "/");
+      }
+      return memo2;
+    },
+    {}
+  );
+  return {
+    params,
+    pathname: matchedPathname,
+    pathnameBase,
+    pattern
+  };
+}
+function compilePath(path, caseSensitive = false, end = true) {
+  warning(
+    path === "*" || !path.endsWith("*") || path.endsWith("/*"),
+    `Route path "${path}" will be treated as if it were "${path.replace(/\*$/, "/*")}" because the \`*\` character must always follow a \`/\` in the pattern. To get rid of this warning, please change the route path to "${path.replace(/\*$/, "/*")}".`
+  );
+  let params = [];
+  let regexpSource = "^" + path.replace(/\/*\*?$/, "").replace(/^\/*/, "/").replace(/[\\.*+^${}|()[\]]/g, "\\$&").replace(
+    /\/:([\w-]+)(\?)?/g,
+    (_, paramName, isOptional) => {
+      params.push({ paramName, isOptional: isOptional != null });
+      return isOptional ? "/?([^\\/]+)?" : "/([^\\/]+)";
+    }
+  );
+  if (path.endsWith("*")) {
+    params.push({ paramName: "*" });
+    regexpSource += path === "*" || path === "/*" ? "(.*)$" : "(?:\\/(.+)|\\/*)$";
+  } else if (end) {
+    regexpSource += "\\/*$";
+  } else if (path !== "" && path !== "/") {
+    regexpSource += "(?:(?=\\/|$))";
+  } else ;
+  let matcher = new RegExp(regexpSource, caseSensitive ? void 0 : "i");
+  return [matcher, params];
+}
+function decodePath(value) {
+  try {
+    return value.split("/").map((v) => decodeURIComponent(v).replace(/\//g, "%2F")).join("/");
+  } catch (error) {
+    warning(
+      false,
+      `The URL path "${value}" could not be decoded because it is a malformed URL segment. This is probably due to a bad percent encoding (${error}).`
+    );
+    return value;
+  }
+}
+function stripBasename(pathname, basename) {
+  if (basename === "/") return pathname;
+  if (!pathname.toLowerCase().startsWith(basename.toLowerCase())) {
+    return null;
+  }
+  let startIndex = basename.endsWith("/") ? basename.length - 1 : basename.length;
+  let nextChar = pathname.charAt(startIndex);
+  if (nextChar && nextChar !== "/") {
+    return null;
+  }
+  return pathname.slice(startIndex) || "/";
+}
+function resolvePath(to, fromPathname = "/") {
+  let {
+    pathname: toPathname,
+    search = "",
+    hash: hash2 = ""
+  } = typeof to === "string" ? parsePath(to) : to;
+  let pathname = toPathname ? toPathname.startsWith("/") ? toPathname : resolvePathname(toPathname, fromPathname) : fromPathname;
+  return {
+    pathname,
+    search: normalizeSearch(search),
+    hash: normalizeHash(hash2)
+  };
+}
+function resolvePathname(relativePath, fromPathname) {
+  let segments = fromPathname.replace(/\/+$/, "").split("/");
+  let relativeSegments = relativePath.split("/");
+  relativeSegments.forEach((segment) => {
+    if (segment === "..") {
+      if (segments.length > 1) segments.pop();
+    } else if (segment !== ".") {
+      segments.push(segment);
+    }
+  });
+  return segments.length > 1 ? segments.join("/") : "/";
+}
+function getInvalidPathError(char2, field, dest, path) {
+  return `Cannot include a '${char2}' character in a manually specified \`to.${field}\` field [${JSON.stringify(
+    path
+  )}].  Please separate it out to the \`to.${dest}\` field. Alternatively you may provide the full path as a string in <Link to="..."> and the router will parse it for you.`;
+}
+function getPathContributingMatches(matches) {
+  return matches.filter(
+    (match2, index) => index === 0 || match2.route.path && match2.route.path.length > 0
+  );
+}
+function getResolveToMatches(matches) {
+  let pathMatches = getPathContributingMatches(matches);
+  return pathMatches.map(
+    (match2, idx) => idx === pathMatches.length - 1 ? match2.pathname : match2.pathnameBase
+  );
+}
+function resolveTo(toArg, routePathnames, locationPathname, isPathRelative = false) {
+  let to;
+  if (typeof toArg === "string") {
+    to = parsePath(toArg);
+  } else {
+    to = { ...toArg };
+    invariant(
+      !to.pathname || !to.pathname.includes("?"),
+      getInvalidPathError("?", "pathname", "search", to)
+    );
+    invariant(
+      !to.pathname || !to.pathname.includes("#"),
+      getInvalidPathError("#", "pathname", "hash", to)
+    );
+    invariant(
+      !to.search || !to.search.includes("#"),
+      getInvalidPathError("#", "search", "hash", to)
+    );
+  }
+  let isEmptyPath = toArg === "" || to.pathname === "";
+  let toPathname = isEmptyPath ? "/" : to.pathname;
+  let from2;
+  if (toPathname == null) {
+    from2 = locationPathname;
+  } else {
+    let routePathnameIndex = routePathnames.length - 1;
+    if (!isPathRelative && toPathname.startsWith("..")) {
+      let toSegments = toPathname.split("/");
+      while (toSegments[0] === "..") {
+        toSegments.shift();
+        routePathnameIndex -= 1;
+      }
+      to.pathname = toSegments.join("/");
+    }
+    from2 = routePathnameIndex >= 0 ? routePathnames[routePathnameIndex] : "/";
+  }
+  let path = resolvePath(to, from2);
+  let hasExplicitTrailingSlash = toPathname && toPathname !== "/" && toPathname.endsWith("/");
+  let hasCurrentTrailingSlash = (isEmptyPath || toPathname === ".") && locationPathname.endsWith("/");
+  if (!path.pathname.endsWith("/") && (hasExplicitTrailingSlash || hasCurrentTrailingSlash)) {
+    path.pathname += "/";
+  }
+  return path;
+}
+var joinPaths = (paths) => paths.join("/").replace(/\/\/+/g, "/");
+var normalizePathname = (pathname) => pathname.replace(/\/+$/, "").replace(/^\/*/, "/");
+var normalizeSearch = (search) => !search || search === "?" ? "" : search.startsWith("?") ? search : "?" + search;
+var normalizeHash = (hash2) => !hash2 || hash2 === "#" ? "" : hash2.startsWith("#") ? hash2 : "#" + hash2;
+function isRouteErrorResponse(error) {
+  return error != null && typeof error.status === "number" && typeof error.statusText === "string" && typeof error.internal === "boolean" && "data" in error;
+}
+var validMutationMethodsArr = [
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE"
+];
+new Set(
+  validMutationMethodsArr
+);
+var validRequestMethodsArr = [
+  "GET",
+  ...validMutationMethodsArr
+];
+new Set(validRequestMethodsArr);
+var DataRouterContext = reactExports.createContext(null);
+DataRouterContext.displayName = "DataRouter";
+var DataRouterStateContext = reactExports.createContext(null);
+DataRouterStateContext.displayName = "DataRouterState";
+var ViewTransitionContext = reactExports.createContext({
+  isTransitioning: false
+});
+ViewTransitionContext.displayName = "ViewTransition";
+var FetchersContext = reactExports.createContext(
+  /* @__PURE__ */ new Map()
+);
+FetchersContext.displayName = "Fetchers";
+var AwaitContext = reactExports.createContext(null);
+AwaitContext.displayName = "Await";
+var NavigationContext = reactExports.createContext(
+  null
+);
+NavigationContext.displayName = "Navigation";
+var LocationContext = reactExports.createContext(
+  null
+);
+LocationContext.displayName = "Location";
+var RouteContext = reactExports.createContext({
+  outlet: null,
+  matches: [],
+  isDataRoute: false
+});
+RouteContext.displayName = "Route";
+var RouteErrorContext = reactExports.createContext(null);
+RouteErrorContext.displayName = "RouteError";
+function useHref(to, { relative } = {}) {
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useHref() may be used only in the context of a <Router> component.`
+  );
+  let { basename, navigator: navigator2 } = reactExports.useContext(NavigationContext);
+  let { hash: hash2, pathname, search } = useResolvedPath(to, { relative });
+  let joinedPathname = pathname;
+  if (basename !== "/") {
+    joinedPathname = pathname === "/" ? basename : joinPaths([basename, pathname]);
+  }
+  return navigator2.createHref({ pathname: joinedPathname, search, hash: hash2 });
+}
+function useInRouterContext() {
+  return reactExports.useContext(LocationContext) != null;
+}
+function useLocation() {
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useLocation() may be used only in the context of a <Router> component.`
+  );
+  return reactExports.useContext(LocationContext).location;
+}
+var navigateEffectWarning = `You should call navigate() in a React.useEffect(), not when your component is first rendered.`;
+function useIsomorphicLayoutEffect(cb) {
+  let isStatic = reactExports.useContext(NavigationContext).static;
+  if (!isStatic) {
+    reactExports.useLayoutEffect(cb);
+  }
+}
+function useNavigate() {
+  let { isDataRoute } = reactExports.useContext(RouteContext);
+  return isDataRoute ? useNavigateStable() : useNavigateUnstable();
+}
+function useNavigateUnstable() {
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useNavigate() may be used only in the context of a <Router> component.`
+  );
+  let dataRouterContext = reactExports.useContext(DataRouterContext);
+  let { basename, navigator: navigator2 } = reactExports.useContext(NavigationContext);
+  let { matches } = reactExports.useContext(RouteContext);
+  let { pathname: locationPathname } = useLocation();
+  let routePathnamesJson = JSON.stringify(getResolveToMatches(matches));
+  let activeRef = reactExports.useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    activeRef.current = true;
+  });
+  let navigate = reactExports.useCallback(
+    (to, options = {}) => {
+      warning(activeRef.current, navigateEffectWarning);
+      if (!activeRef.current) return;
+      if (typeof to === "number") {
+        navigator2.go(to);
+        return;
+      }
+      let path = resolveTo(
+        to,
+        JSON.parse(routePathnamesJson),
+        locationPathname,
+        options.relative === "path"
+      );
+      if (dataRouterContext == null && basename !== "/") {
+        path.pathname = path.pathname === "/" ? basename : joinPaths([basename, path.pathname]);
+      }
+      (!!options.replace ? navigator2.replace : navigator2.push)(
+        path,
+        options.state,
+        options
+      );
+    },
+    [
+      basename,
+      navigator2,
+      routePathnamesJson,
+      locationPathname,
+      dataRouterContext
+    ]
+  );
+  return navigate;
+}
+reactExports.createContext(null);
+function useResolvedPath(to, { relative } = {}) {
+  let { matches } = reactExports.useContext(RouteContext);
+  let { pathname: locationPathname } = useLocation();
+  let routePathnamesJson = JSON.stringify(getResolveToMatches(matches));
+  return reactExports.useMemo(
+    () => resolveTo(
+      to,
+      JSON.parse(routePathnamesJson),
+      locationPathname,
+      relative === "path"
+    ),
+    [to, routePathnamesJson, locationPathname, relative]
+  );
+}
+function useRoutes(routes, locationArg) {
+  return useRoutesImpl(routes, locationArg);
+}
+function useRoutesImpl(routes, locationArg, dataRouterState, future) {
+  var _a;
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of the
+    // router loaded. We can help them understand how to avoid that.
+    `useRoutes() may be used only in the context of a <Router> component.`
+  );
+  let { navigator: navigator2, static: isStatic } = reactExports.useContext(NavigationContext);
+  let { matches: parentMatches } = reactExports.useContext(RouteContext);
+  let routeMatch = parentMatches[parentMatches.length - 1];
+  let parentParams = routeMatch ? routeMatch.params : {};
+  let parentPathname = routeMatch ? routeMatch.pathname : "/";
+  let parentPathnameBase = routeMatch ? routeMatch.pathnameBase : "/";
+  let parentRoute = routeMatch && routeMatch.route;
+  {
+    let parentPath = parentRoute && parentRoute.path || "";
+    warningOnce(
+      parentPathname,
+      !parentRoute || parentPath.endsWith("*") || parentPath.endsWith("*?"),
+      `You rendered descendant <Routes> (or called \`useRoutes()\`) at "${parentPathname}" (under <Route path="${parentPath}">) but the parent route path has no trailing "*". This means if you navigate deeper, the parent won't match anymore and therefore the child routes will never render.
+
+Please change the parent <Route path="${parentPath}"> to <Route path="${parentPath === "/" ? "*" : `${parentPath}/*`}">.`
+    );
+  }
+  let locationFromContext = useLocation();
+  let location;
+  if (locationArg) {
+    let parsedLocationArg = typeof locationArg === "string" ? parsePath(locationArg) : locationArg;
+    invariant(
+      parentPathnameBase === "/" || ((_a = parsedLocationArg.pathname) == null ? void 0 : _a.startsWith(parentPathnameBase)),
+      `When overriding the location using \`<Routes location>\` or \`useRoutes(routes, location)\`, the location pathname must begin with the portion of the URL pathname that was matched by all parent routes. The current pathname base is "${parentPathnameBase}" but pathname "${parsedLocationArg.pathname}" was given in the \`location\` prop.`
+    );
+    location = parsedLocationArg;
+  } else {
+    location = locationFromContext;
+  }
+  let pathname = location.pathname || "/";
+  let remainingPathname = pathname;
+  if (parentPathnameBase !== "/") {
+    let parentSegments = parentPathnameBase.replace(/^\//, "").split("/");
+    let segments = pathname.replace(/^\//, "").split("/");
+    remainingPathname = "/" + segments.slice(parentSegments.length).join("/");
+  }
+  let matches = !isStatic && dataRouterState && dataRouterState.matches && dataRouterState.matches.length > 0 ? dataRouterState.matches : matchRoutes(routes, { pathname: remainingPathname });
+  {
+    warning(
+      parentRoute || matches != null,
+      `No routes matched location "${location.pathname}${location.search}${location.hash}" `
+    );
+    warning(
+      matches == null || matches[matches.length - 1].route.element !== void 0 || matches[matches.length - 1].route.Component !== void 0 || matches[matches.length - 1].route.lazy !== void 0,
+      `Matched leaf route at location "${location.pathname}${location.search}${location.hash}" does not have an element or Component. This means it will render an <Outlet /> with a null value by default resulting in an "empty" page.`
+    );
+  }
+  let renderedMatches = _renderMatches(
+    matches && matches.map(
+      (match2) => Object.assign({}, match2, {
+        params: Object.assign({}, parentParams, match2.params),
+        pathname: joinPaths([
+          parentPathnameBase,
+          // Re-encode pathnames that were decoded inside matchRoutes
+          navigator2.encodeLocation ? navigator2.encodeLocation(match2.pathname).pathname : match2.pathname
+        ]),
+        pathnameBase: match2.pathnameBase === "/" ? parentPathnameBase : joinPaths([
+          parentPathnameBase,
+          // Re-encode pathnames that were decoded inside matchRoutes
+          navigator2.encodeLocation ? navigator2.encodeLocation(match2.pathnameBase).pathname : match2.pathnameBase
+        ])
+      })
+    ),
+    parentMatches,
+    dataRouterState,
+    future
+  );
+  if (locationArg && renderedMatches) {
+    return /* @__PURE__ */ reactExports.createElement(
+      LocationContext.Provider,
+      {
+        value: {
+          location: {
+            pathname: "/",
+            search: "",
+            hash: "",
+            state: null,
+            key: "default",
+            ...location
+          },
+          navigationType: "POP"
+          /* Pop */
+        }
+      },
+      renderedMatches
+    );
+  }
+  return renderedMatches;
+}
+function DefaultErrorComponent() {
+  let error = useRouteError();
+  let message = isRouteErrorResponse(error) ? `${error.status} ${error.statusText}` : error instanceof Error ? error.message : JSON.stringify(error);
+  let stack = error instanceof Error ? error.stack : null;
+  let lightgrey = "rgba(200,200,200, 0.5)";
+  let preStyles = { padding: "0.5rem", backgroundColor: lightgrey };
+  let codeStyles = { padding: "2px 4px", backgroundColor: lightgrey };
+  let devInfo = null;
+  {
+    console.error(
+      "Error handled by React Router default ErrorBoundary:",
+      error
+    );
+    devInfo = /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, /* @__PURE__ */ reactExports.createElement("p", null, "💿 Hey developer 👋"), /* @__PURE__ */ reactExports.createElement("p", null, "You can provide a way better UX than this when your app throws errors by providing your own ", /* @__PURE__ */ reactExports.createElement("code", { style: codeStyles }, "ErrorBoundary"), " or", " ", /* @__PURE__ */ reactExports.createElement("code", { style: codeStyles }, "errorElement"), " prop on your route."));
+  }
+  return /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, /* @__PURE__ */ reactExports.createElement("h2", null, "Unexpected Application Error!"), /* @__PURE__ */ reactExports.createElement("h3", { style: { fontStyle: "italic" } }, message), stack ? /* @__PURE__ */ reactExports.createElement("pre", { style: preStyles }, stack) : null, devInfo);
+}
+var defaultErrorElement = /* @__PURE__ */ reactExports.createElement(DefaultErrorComponent, null);
+var RenderErrorBoundary = class extends reactExports.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      location: props.location,
+      revalidation: props.revalidation,
+      error: props.error
+    };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  static getDerivedStateFromProps(props, state) {
+    if (state.location !== props.location || state.revalidation !== "idle" && props.revalidation === "idle") {
+      return {
+        error: props.error,
+        location: props.location,
+        revalidation: props.revalidation
+      };
+    }
+    return {
+      error: props.error !== void 0 ? props.error : state.error,
+      location: state.location,
+      revalidation: props.revalidation || state.revalidation
+    };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error(
+      "React Router caught the following error during render",
+      error,
+      errorInfo
+    );
+  }
+  render() {
+    return this.state.error !== void 0 ? /* @__PURE__ */ reactExports.createElement(RouteContext.Provider, { value: this.props.routeContext }, /* @__PURE__ */ reactExports.createElement(
+      RouteErrorContext.Provider,
+      {
+        value: this.state.error,
+        children: this.props.component
+      }
+    )) : this.props.children;
+  }
+};
+function RenderedRoute({ routeContext, match: match2, children }) {
+  let dataRouterContext = reactExports.useContext(DataRouterContext);
+  if (dataRouterContext && dataRouterContext.static && dataRouterContext.staticContext && (match2.route.errorElement || match2.route.ErrorBoundary)) {
+    dataRouterContext.staticContext._deepestRenderedBoundaryId = match2.route.id;
+  }
+  return /* @__PURE__ */ reactExports.createElement(RouteContext.Provider, { value: routeContext }, children);
+}
+function _renderMatches(matches, parentMatches = [], dataRouterState = null, future = null) {
+  if (matches == null) {
+    if (!dataRouterState) {
+      return null;
+    }
+    if (dataRouterState.errors) {
+      matches = dataRouterState.matches;
+    } else if (parentMatches.length === 0 && !dataRouterState.initialized && dataRouterState.matches.length > 0) {
+      matches = dataRouterState.matches;
+    } else {
+      return null;
+    }
+  }
+  let renderedMatches = matches;
+  let errors = dataRouterState == null ? void 0 : dataRouterState.errors;
+  if (errors != null) {
+    let errorIndex = renderedMatches.findIndex(
+      (m) => m.route.id && (errors == null ? void 0 : errors[m.route.id]) !== void 0
+    );
+    invariant(
+      errorIndex >= 0,
+      `Could not find a matching route for errors on route IDs: ${Object.keys(
+        errors
+      ).join(",")}`
+    );
+    renderedMatches = renderedMatches.slice(
+      0,
+      Math.min(renderedMatches.length, errorIndex + 1)
+    );
+  }
+  let renderFallback = false;
+  let fallbackIndex = -1;
+  if (dataRouterState) {
+    for (let i = 0; i < renderedMatches.length; i++) {
+      let match2 = renderedMatches[i];
+      if (match2.route.HydrateFallback || match2.route.hydrateFallbackElement) {
+        fallbackIndex = i;
+      }
+      if (match2.route.id) {
+        let { loaderData, errors: errors2 } = dataRouterState;
+        let needsToRunLoader = match2.route.loader && !loaderData.hasOwnProperty(match2.route.id) && (!errors2 || errors2[match2.route.id] === void 0);
+        if (match2.route.lazy || needsToRunLoader) {
+          renderFallback = true;
+          if (fallbackIndex >= 0) {
+            renderedMatches = renderedMatches.slice(0, fallbackIndex + 1);
+          } else {
+            renderedMatches = [renderedMatches[0]];
+          }
+          break;
+        }
+      }
+    }
+  }
+  return renderedMatches.reduceRight((outlet, match2, index) => {
+    let error;
+    let shouldRenderHydrateFallback = false;
+    let errorElement = null;
+    let hydrateFallbackElement = null;
+    if (dataRouterState) {
+      error = errors && match2.route.id ? errors[match2.route.id] : void 0;
+      errorElement = match2.route.errorElement || defaultErrorElement;
+      if (renderFallback) {
+        if (fallbackIndex < 0 && index === 0) {
+          warningOnce(
+            "route-fallback",
+            false,
+            "No `HydrateFallback` element provided to render during initial hydration"
+          );
+          shouldRenderHydrateFallback = true;
+          hydrateFallbackElement = null;
+        } else if (fallbackIndex === index) {
+          shouldRenderHydrateFallback = true;
+          hydrateFallbackElement = match2.route.hydrateFallbackElement || null;
+        }
+      }
+    }
+    let matches2 = parentMatches.concat(renderedMatches.slice(0, index + 1));
+    let getChildren = () => {
+      let children;
+      if (error) {
+        children = errorElement;
+      } else if (shouldRenderHydrateFallback) {
+        children = hydrateFallbackElement;
+      } else if (match2.route.Component) {
+        children = /* @__PURE__ */ reactExports.createElement(match2.route.Component, null);
+      } else if (match2.route.element) {
+        children = match2.route.element;
+      } else {
+        children = outlet;
+      }
+      return /* @__PURE__ */ reactExports.createElement(
+        RenderedRoute,
+        {
+          match: match2,
+          routeContext: {
+            outlet,
+            matches: matches2,
+            isDataRoute: dataRouterState != null
+          },
+          children
+        }
+      );
+    };
+    return dataRouterState && (match2.route.ErrorBoundary || match2.route.errorElement || index === 0) ? /* @__PURE__ */ reactExports.createElement(
+      RenderErrorBoundary,
+      {
+        location: dataRouterState.location,
+        revalidation: dataRouterState.revalidation,
+        component: errorElement,
+        error,
+        children: getChildren(),
+        routeContext: { outlet: null, matches: matches2, isDataRoute: true }
+      }
+    ) : getChildren();
+  }, null);
+}
+function getDataRouterConsoleError(hookName) {
+  return `${hookName} must be used within a data router.  See https://reactrouter.com/en/main/routers/picking-a-router.`;
+}
+function useDataRouterContext(hookName) {
+  let ctx = reactExports.useContext(DataRouterContext);
+  invariant(ctx, getDataRouterConsoleError(hookName));
+  return ctx;
+}
+function useDataRouterState(hookName) {
+  let state = reactExports.useContext(DataRouterStateContext);
+  invariant(state, getDataRouterConsoleError(hookName));
+  return state;
+}
+function useRouteContext(hookName) {
+  let route = reactExports.useContext(RouteContext);
+  invariant(route, getDataRouterConsoleError(hookName));
+  return route;
+}
+function useCurrentRouteId(hookName) {
+  let route = useRouteContext(hookName);
+  let thisRoute = route.matches[route.matches.length - 1];
+  invariant(
+    thisRoute.route.id,
+    `${hookName} can only be used on routes that contain a unique "id"`
+  );
+  return thisRoute.route.id;
+}
+function useRouteId() {
+  return useCurrentRouteId(
+    "useRouteId"
+    /* UseRouteId */
+  );
+}
+function useRouteError() {
+  var _a;
+  let error = reactExports.useContext(RouteErrorContext);
+  let state = useDataRouterState(
+    "useRouteError"
+    /* UseRouteError */
+  );
+  let routeId = useCurrentRouteId(
+    "useRouteError"
+    /* UseRouteError */
+  );
+  if (error !== void 0) {
+    return error;
+  }
+  return (_a = state.errors) == null ? void 0 : _a[routeId];
+}
+function useNavigateStable() {
+  let { router } = useDataRouterContext(
+    "useNavigate"
+    /* UseNavigateStable */
+  );
+  let id = useCurrentRouteId(
+    "useNavigate"
+    /* UseNavigateStable */
+  );
+  let activeRef = reactExports.useRef(false);
+  useIsomorphicLayoutEffect(() => {
+    activeRef.current = true;
+  });
+  let navigate = reactExports.useCallback(
+    async (to, options = {}) => {
+      warning(activeRef.current, navigateEffectWarning);
+      if (!activeRef.current) return;
+      if (typeof to === "number") {
+        router.navigate(to);
+      } else {
+        await router.navigate(to, { fromRouteId: id, ...options });
+      }
+    },
+    [router, id]
+  );
+  return navigate;
+}
+var alreadyWarned = {};
+function warningOnce(key, cond, message) {
+  if (!cond && !alreadyWarned[key]) {
+    alreadyWarned[key] = true;
+    warning(false, message);
+  }
+}
+reactExports.memo(DataRoutes);
+function DataRoutes({
+  routes,
+  future,
+  state
+}) {
+  return useRoutesImpl(routes, void 0, state, future);
+}
+function Navigate({
+  to,
+  replace: replace2,
+  state,
+  relative
+}) {
+  invariant(
+    useInRouterContext(),
+    // TODO: This error is probably because they somehow have 2 versions of
+    // the router loaded. We can help them understand how to avoid that.
+    `<Navigate> may be used only in the context of a <Router> component.`
+  );
+  let { static: isStatic } = reactExports.useContext(NavigationContext);
+  warning(
+    !isStatic,
+    `<Navigate> must not be used on the initial render in a <StaticRouter>. This is a no-op, but you should modify your code so the <Navigate> is only ever rendered in response to some user interaction or state change.`
+  );
+  let { matches } = reactExports.useContext(RouteContext);
+  let { pathname: locationPathname } = useLocation();
+  let navigate = useNavigate();
+  let path = resolveTo(
+    to,
+    getResolveToMatches(matches),
+    locationPathname,
+    relative === "path"
+  );
+  let jsonPath = JSON.stringify(path);
+  reactExports.useEffect(() => {
+    navigate(JSON.parse(jsonPath), { replace: replace2, state, relative });
+  }, [navigate, jsonPath, relative, replace2, state]);
+  return null;
+}
+function Route(_props) {
+  invariant(
+    false,
+    `A <Route> is only ever to be used as the child of <Routes> element, never rendered directly. Please wrap your <Route> in a <Routes>.`
+  );
+}
+function Router$1({
+  basename: basenameProp = "/",
+  children = null,
+  location: locationProp,
+  navigationType = "POP",
+  navigator: navigator2,
+  static: staticProp = false
+}) {
+  invariant(
+    !useInRouterContext(),
+    `You cannot render a <Router> inside another <Router>. You should never have more than one in your app.`
+  );
+  let basename = basenameProp.replace(/^\/*/, "/");
+  let navigationContext = reactExports.useMemo(
+    () => ({
+      basename,
+      navigator: navigator2,
+      static: staticProp,
+      future: {}
+    }),
+    [basename, navigator2, staticProp]
+  );
+  if (typeof locationProp === "string") {
+    locationProp = parsePath(locationProp);
+  }
+  let {
+    pathname = "/",
+    search = "",
+    hash: hash2 = "",
+    state = null,
+    key = "default"
+  } = locationProp;
+  let locationContext = reactExports.useMemo(() => {
+    let trailingPathname = stripBasename(pathname, basename);
+    if (trailingPathname == null) {
+      return null;
+    }
+    return {
+      location: {
+        pathname: trailingPathname,
+        search,
+        hash: hash2,
+        state,
+        key
+      },
+      navigationType
+    };
+  }, [basename, pathname, search, hash2, state, key, navigationType]);
+  warning(
+    locationContext != null,
+    `<Router basename="${basename}"> is not able to match the URL "${pathname}${search}${hash2}" because it does not start with the basename, so the <Router> won't render anything.`
+  );
+  if (locationContext == null) {
+    return null;
+  }
+  return /* @__PURE__ */ reactExports.createElement(NavigationContext.Provider, { value: navigationContext }, /* @__PURE__ */ reactExports.createElement(LocationContext.Provider, { children, value: locationContext }));
+}
+function Routes({
+  children,
+  location
+}) {
+  return useRoutes(createRoutesFromChildren(children), location);
+}
+function createRoutesFromChildren(children, parentPath = []) {
+  let routes = [];
+  reactExports.Children.forEach(children, (element, index) => {
+    if (!reactExports.isValidElement(element)) {
+      return;
+    }
+    let treePath = [...parentPath, index];
+    if (element.type === reactExports.Fragment) {
+      routes.push.apply(
+        routes,
+        createRoutesFromChildren(element.props.children, treePath)
+      );
+      return;
+    }
+    invariant(
+      element.type === Route,
+      `[${typeof element.type === "string" ? element.type : element.type.name}] is not a <Route> component. All component children of <Routes> must be a <Route> or <React.Fragment>`
+    );
+    invariant(
+      !element.props.index || !element.props.children,
+      "An index route cannot have child routes."
+    );
+    let route = {
+      id: element.props.id || treePath.join("-"),
+      caseSensitive: element.props.caseSensitive,
+      element: element.props.element,
+      Component: element.props.Component,
+      index: element.props.index,
+      path: element.props.path,
+      loader: element.props.loader,
+      action: element.props.action,
+      hydrateFallbackElement: element.props.hydrateFallbackElement,
+      HydrateFallback: element.props.HydrateFallback,
+      errorElement: element.props.errorElement,
+      ErrorBoundary: element.props.ErrorBoundary,
+      hasErrorBoundary: element.props.hasErrorBoundary === true || element.props.ErrorBoundary != null || element.props.errorElement != null,
+      shouldRevalidate: element.props.shouldRevalidate,
+      handle: element.props.handle,
+      lazy: element.props.lazy
+    };
+    if (element.props.children) {
+      route.children = createRoutesFromChildren(
+        element.props.children,
+        treePath
+      );
+    }
+    routes.push(route);
+  });
+  return routes;
+}
+var defaultMethod = "get";
+var defaultEncType = "application/x-www-form-urlencoded";
+function isHtmlElement(object) {
+  return object != null && typeof object.tagName === "string";
+}
+function isButtonElement(object) {
+  return isHtmlElement(object) && object.tagName.toLowerCase() === "button";
+}
+function isFormElement(object) {
+  return isHtmlElement(object) && object.tagName.toLowerCase() === "form";
+}
+function isInputElement(object) {
+  return isHtmlElement(object) && object.tagName.toLowerCase() === "input";
+}
+function isModifiedEvent(event) {
+  return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+}
+function shouldProcessLinkClick(event, target) {
+  return event.button === 0 && // Ignore everything but left clicks
+  (!target || target === "_self") && // Let browser handle "target=_blank" etc.
+  !isModifiedEvent(event);
+}
+var _formDataSupportsSubmitter = null;
+function isFormDataSubmitterSupported() {
+  if (_formDataSupportsSubmitter === null) {
+    try {
+      new FormData(
+        document.createElement("form"),
+        // @ts-expect-error if FormData supports the submitter parameter, this will throw
+        0
+      );
+      _formDataSupportsSubmitter = false;
+    } catch (e) {
+      _formDataSupportsSubmitter = true;
+    }
+  }
+  return _formDataSupportsSubmitter;
+}
+var supportedFormEncTypes = /* @__PURE__ */ new Set([
+  "application/x-www-form-urlencoded",
+  "multipart/form-data",
+  "text/plain"
+]);
+function getFormEncType(encType) {
+  if (encType != null && !supportedFormEncTypes.has(encType)) {
+    warning(
+      false,
+      `"${encType}" is not a valid \`encType\` for \`<Form>\`/\`<fetcher.Form>\` and will default to "${defaultEncType}"`
+    );
+    return null;
+  }
+  return encType;
+}
+function getFormSubmissionInfo(target, basename) {
+  let method;
+  let action;
+  let encType;
+  let formData;
+  let body;
+  if (isFormElement(target)) {
+    let attr = target.getAttribute("action");
+    action = attr ? stripBasename(attr, basename) : null;
+    method = target.getAttribute("method") || defaultMethod;
+    encType = getFormEncType(target.getAttribute("enctype")) || defaultEncType;
+    formData = new FormData(target);
+  } else if (isButtonElement(target) || isInputElement(target) && (target.type === "submit" || target.type === "image")) {
+    let form = target.form;
+    if (form == null) {
+      throw new Error(
+        `Cannot submit a <button> or <input type="submit"> without a <form>`
+      );
+    }
+    let attr = target.getAttribute("formaction") || form.getAttribute("action");
+    action = attr ? stripBasename(attr, basename) : null;
+    method = target.getAttribute("formmethod") || form.getAttribute("method") || defaultMethod;
+    encType = getFormEncType(target.getAttribute("formenctype")) || getFormEncType(form.getAttribute("enctype")) || defaultEncType;
+    formData = new FormData(form, target);
+    if (!isFormDataSubmitterSupported()) {
+      let { name, type, value } = target;
+      if (type === "image") {
+        let prefix2 = name ? `${name}.` : "";
+        formData.append(`${prefix2}x`, "0");
+        formData.append(`${prefix2}y`, "0");
+      } else if (name) {
+        formData.append(name, value);
+      }
+    }
+  } else if (isHtmlElement(target)) {
+    throw new Error(
+      `Cannot submit element that is not <form>, <button>, or <input type="submit|image">`
+    );
+  } else {
+    method = defaultMethod;
+    action = null;
+    encType = defaultEncType;
+    body = target;
+  }
+  if (formData && encType === "text/plain") {
+    body = formData;
+    formData = void 0;
+  }
+  return { action, method: method.toLowerCase(), encType, formData, body };
+}
+function invariant2(value, message) {
+  if (value === false || value === null || typeof value === "undefined") {
+    throw new Error(message);
+  }
+}
+async function loadRouteModule(route, routeModulesCache) {
+  if (route.id in routeModulesCache) {
+    return routeModulesCache[route.id];
+  }
+  try {
+    let routeModule = await import(
+      /* @vite-ignore */
+      /* webpackIgnore: true */
+      route.module
+    );
+    routeModulesCache[route.id] = routeModule;
+    return routeModule;
+  } catch (error) {
+    console.error(
+      `Error loading route module \`${route.module}\`, reloading page...`
+    );
+    console.error(error);
+    if (window.__reactRouterContext && window.__reactRouterContext.isSpaMode && // @ts-expect-error
+    void 0) ;
+    window.location.reload();
+    return new Promise(() => {
+    });
+  }
+}
+function isHtmlLinkDescriptor(object) {
+  if (object == null) {
+    return false;
+  }
+  if (object.href == null) {
+    return object.rel === "preload" && typeof object.imageSrcSet === "string" && typeof object.imageSizes === "string";
+  }
+  return typeof object.rel === "string" && typeof object.href === "string";
+}
+async function getKeyedPrefetchLinks(matches, manifest, routeModules) {
+  let links = await Promise.all(
+    matches.map(async (match2) => {
+      let route = manifest.routes[match2.route.id];
+      if (route) {
+        let mod = await loadRouteModule(route, routeModules);
+        return mod.links ? mod.links() : [];
+      }
+      return [];
+    })
+  );
+  return dedupeLinkDescriptors(
+    links.flat(1).filter(isHtmlLinkDescriptor).filter((link) => link.rel === "stylesheet" || link.rel === "preload").map(
+      (link) => link.rel === "stylesheet" ? { ...link, rel: "prefetch", as: "style" } : { ...link, rel: "prefetch" }
+    )
+  );
+}
+function getNewMatchesForLinks(page, nextMatches, currentMatches, manifest, location, mode) {
+  let isNew = (match2, index) => {
+    if (!currentMatches[index]) return true;
+    return match2.route.id !== currentMatches[index].route.id;
+  };
+  let matchPathChanged = (match2, index) => {
+    var _a;
+    return (
+      // param change, /users/123 -> /users/456
+      currentMatches[index].pathname !== match2.pathname || // splat param changed, which is not present in match.path
+      // e.g. /files/images/avatar.jpg -> files/finances.xls
+      ((_a = currentMatches[index].route.path) == null ? void 0 : _a.endsWith("*")) && currentMatches[index].params["*"] !== match2.params["*"]
+    );
+  };
+  if (mode === "assets") {
+    return nextMatches.filter(
+      (match2, index) => isNew(match2, index) || matchPathChanged(match2, index)
+    );
+  }
+  if (mode === "data") {
+    return nextMatches.filter((match2, index) => {
+      var _a;
+      let manifestRoute = manifest.routes[match2.route.id];
+      if (!manifestRoute || !manifestRoute.hasLoader) {
+        return false;
+      }
+      if (isNew(match2, index) || matchPathChanged(match2, index)) {
+        return true;
+      }
+      if (match2.route.shouldRevalidate) {
+        let routeChoice = match2.route.shouldRevalidate({
+          currentUrl: new URL(
+            location.pathname + location.search + location.hash,
+            window.origin
+          ),
+          currentParams: ((_a = currentMatches[0]) == null ? void 0 : _a.params) || {},
+          nextUrl: new URL(page, window.origin),
+          nextParams: match2.params,
+          defaultShouldRevalidate: true
+        });
+        if (typeof routeChoice === "boolean") {
+          return routeChoice;
+        }
+      }
+      return true;
+    });
+  }
+  return [];
+}
+function getModuleLinkHrefs(matches, manifest, { includeHydrateFallback } = {}) {
+  return dedupeHrefs(
+    matches.map((match2) => {
+      let route = manifest.routes[match2.route.id];
+      if (!route) return [];
+      let hrefs = [route.module];
+      if (route.clientActionModule) {
+        hrefs = hrefs.concat(route.clientActionModule);
+      }
+      if (route.clientLoaderModule) {
+        hrefs = hrefs.concat(route.clientLoaderModule);
+      }
+      if (includeHydrateFallback && route.hydrateFallbackModule) {
+        hrefs = hrefs.concat(route.hydrateFallbackModule);
+      }
+      if (route.imports) {
+        hrefs = hrefs.concat(route.imports);
+      }
+      return hrefs;
+    }).flat(1)
+  );
+}
+function dedupeHrefs(hrefs) {
+  return [...new Set(hrefs)];
+}
+function sortKeys(obj) {
+  let sorted = {};
+  let keys = Object.keys(obj).sort();
+  for (let key of keys) {
+    sorted[key] = obj[key];
+  }
+  return sorted;
+}
+function dedupeLinkDescriptors(descriptors, preloads) {
+  let set = /* @__PURE__ */ new Set();
+  new Set(preloads);
+  return descriptors.reduce((deduped, descriptor) => {
+    let key = JSON.stringify(sortKeys(descriptor));
+    if (!set.has(key)) {
+      set.add(key);
+      deduped.push({ key, link: descriptor });
+    }
+    return deduped;
+  }, []);
+}
+var NO_BODY_STATUS_CODES = /* @__PURE__ */ new Set([100, 101, 204, 205]);
+function singleFetchUrl(reqUrl, basename) {
+  let url = typeof reqUrl === "string" ? new URL(
+    reqUrl,
+    // This can be called during the SSR flow via PrefetchPageLinksImpl so
+    // don't assume window is available
+    typeof window === "undefined" ? "server://singlefetch/" : window.location.origin
+  ) : reqUrl;
+  if (url.pathname === "/") {
+    url.pathname = "_root.data";
+  } else if (basename && stripBasename(url.pathname, basename) === "/") {
+    url.pathname = `${basename.replace(/\/$/, "")}/_root.data`;
+  } else {
+    url.pathname = `${url.pathname.replace(/\/$/, "")}.data`;
+  }
+  return url;
+}
+function useDataRouterContext2() {
+  let context = reactExports.useContext(DataRouterContext);
+  invariant2(
+    context,
+    "You must render this element inside a <DataRouterContext.Provider> element"
+  );
+  return context;
+}
+function useDataRouterStateContext() {
+  let context = reactExports.useContext(DataRouterStateContext);
+  invariant2(
+    context,
+    "You must render this element inside a <DataRouterStateContext.Provider> element"
+  );
+  return context;
+}
+var FrameworkContext = reactExports.createContext(void 0);
+FrameworkContext.displayName = "FrameworkContext";
+function useFrameworkContext() {
+  let context = reactExports.useContext(FrameworkContext);
+  invariant2(
+    context,
+    "You must render this element inside a <HydratedRouter> element"
+  );
+  return context;
+}
+function usePrefetchBehavior(prefetch, theirElementProps) {
+  let frameworkContext = reactExports.useContext(FrameworkContext);
+  let [maybePrefetch, setMaybePrefetch] = reactExports.useState(false);
+  let [shouldPrefetch, setShouldPrefetch] = reactExports.useState(false);
+  let { onFocus, onBlur, onMouseEnter, onMouseLeave, onTouchStart } = theirElementProps;
+  let ref = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (prefetch === "render") {
+      setShouldPrefetch(true);
+    }
+    if (prefetch === "viewport") {
+      let callback = (entries) => {
+        entries.forEach((entry) => {
+          setShouldPrefetch(entry.isIntersecting);
+        });
+      };
+      let observer = new IntersectionObserver(callback, { threshold: 0.5 });
+      if (ref.current) observer.observe(ref.current);
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, [prefetch]);
+  reactExports.useEffect(() => {
+    if (maybePrefetch) {
+      let id = setTimeout(() => {
+        setShouldPrefetch(true);
+      }, 100);
+      return () => {
+        clearTimeout(id);
+      };
+    }
+  }, [maybePrefetch]);
+  let setIntent = () => {
+    setMaybePrefetch(true);
+  };
+  let cancelIntent = () => {
+    setMaybePrefetch(false);
+    setShouldPrefetch(false);
+  };
+  if (!frameworkContext) {
+    return [false, ref, {}];
+  }
+  if (prefetch !== "intent") {
+    return [shouldPrefetch, ref, {}];
+  }
+  return [
+    shouldPrefetch,
+    ref,
+    {
+      onFocus: composeEventHandlers(onFocus, setIntent),
+      onBlur: composeEventHandlers(onBlur, cancelIntent),
+      onMouseEnter: composeEventHandlers(onMouseEnter, setIntent),
+      onMouseLeave: composeEventHandlers(onMouseLeave, cancelIntent),
+      onTouchStart: composeEventHandlers(onTouchStart, setIntent)
+    }
+  ];
+}
+function composeEventHandlers(theirHandler, ourHandler) {
+  return (event) => {
+    theirHandler && theirHandler(event);
+    if (!event.defaultPrevented) {
+      ourHandler(event);
+    }
+  };
+}
+function PrefetchPageLinks({
+  page,
+  ...dataLinkProps
+}) {
+  let { router } = useDataRouterContext2();
+  let matches = reactExports.useMemo(
+    () => matchRoutes(router.routes, page, router.basename),
+    [router.routes, page, router.basename]
+  );
+  if (!matches) {
+    return null;
+  }
+  return /* @__PURE__ */ reactExports.createElement(PrefetchPageLinksImpl, { page, matches, ...dataLinkProps });
+}
+function useKeyedPrefetchLinks(matches) {
+  let { manifest, routeModules } = useFrameworkContext();
+  let [keyedPrefetchLinks, setKeyedPrefetchLinks] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    let interrupted = false;
+    void getKeyedPrefetchLinks(matches, manifest, routeModules).then(
+      (links) => {
+        if (!interrupted) {
+          setKeyedPrefetchLinks(links);
+        }
+      }
+    );
+    return () => {
+      interrupted = true;
+    };
+  }, [matches, manifest, routeModules]);
+  return keyedPrefetchLinks;
+}
+function PrefetchPageLinksImpl({
+  page,
+  matches: nextMatches,
+  ...linkProps
+}) {
+  let location = useLocation();
+  let { manifest, routeModules } = useFrameworkContext();
+  let { basename } = useDataRouterContext2();
+  let { loaderData, matches } = useDataRouterStateContext();
+  let newMatchesForData = reactExports.useMemo(
+    () => getNewMatchesForLinks(
+      page,
+      nextMatches,
+      matches,
+      manifest,
+      location,
+      "data"
+    ),
+    [page, nextMatches, matches, manifest, location]
+  );
+  let newMatchesForAssets = reactExports.useMemo(
+    () => getNewMatchesForLinks(
+      page,
+      nextMatches,
+      matches,
+      manifest,
+      location,
+      "assets"
+    ),
+    [page, nextMatches, matches, manifest, location]
+  );
+  let dataHrefs = reactExports.useMemo(() => {
+    if (page === location.pathname + location.search + location.hash) {
+      return [];
+    }
+    let routesParams = /* @__PURE__ */ new Set();
+    let foundOptOutRoute = false;
+    nextMatches.forEach((m) => {
+      var _a;
+      let manifestRoute = manifest.routes[m.route.id];
+      if (!manifestRoute || !manifestRoute.hasLoader) {
+        return;
+      }
+      if (!newMatchesForData.some((m2) => m2.route.id === m.route.id) && m.route.id in loaderData && ((_a = routeModules[m.route.id]) == null ? void 0 : _a.shouldRevalidate)) {
+        foundOptOutRoute = true;
+      } else if (manifestRoute.hasClientLoader) {
+        foundOptOutRoute = true;
+      } else {
+        routesParams.add(m.route.id);
+      }
+    });
+    if (routesParams.size === 0) {
+      return [];
+    }
+    let url = singleFetchUrl(page, basename);
+    if (foundOptOutRoute && routesParams.size > 0) {
+      url.searchParams.set(
+        "_routes",
+        nextMatches.filter((m) => routesParams.has(m.route.id)).map((m) => m.route.id).join(",")
+      );
+    }
+    return [url.pathname + url.search];
+  }, [
+    basename,
+    loaderData,
+    location,
+    manifest,
+    newMatchesForData,
+    nextMatches,
+    page,
+    routeModules
+  ]);
+  let moduleHrefs = reactExports.useMemo(
+    () => getModuleLinkHrefs(newMatchesForAssets, manifest),
+    [newMatchesForAssets, manifest]
+  );
+  let keyedPrefetchLinks = useKeyedPrefetchLinks(newMatchesForAssets);
+  return /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, dataHrefs.map((href2) => /* @__PURE__ */ reactExports.createElement("link", { key: href2, rel: "prefetch", as: "fetch", href: href2, ...linkProps })), moduleHrefs.map((href2) => /* @__PURE__ */ reactExports.createElement("link", { key: href2, rel: "modulepreload", href: href2, ...linkProps })), keyedPrefetchLinks.map(({ key, link }) => (
+    // these don't spread `linkProps` because they are full link descriptors
+    // already with their own props
+    /* @__PURE__ */ reactExports.createElement("link", { key, ...link })
+  )));
+}
+function mergeRefs(...refs) {
+  return (value) => {
+    refs.forEach((ref) => {
+      if (typeof ref === "function") {
+        ref(value);
+      } else if (ref != null) {
+        ref.current = value;
+      }
+    });
+  };
+}
+var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined" && typeof window.document.createElement !== "undefined";
+try {
+  if (isBrowser) {
+    window.__reactRouterVersion = "7.5.2";
+  }
+} catch (e) {
+}
+function BrowserRouter({
+  basename,
+  children,
+  window: window2
+}) {
+  let historyRef = reactExports.useRef();
+  if (historyRef.current == null) {
+    historyRef.current = createBrowserHistory({ window: window2, v5Compat: true });
+  }
+  let history = historyRef.current;
+  let [state, setStateImpl] = reactExports.useState({
+    action: history.action,
+    location: history.location
+  });
+  let setState = reactExports.useCallback(
+    (newState) => {
+      reactExports.startTransition(() => setStateImpl(newState));
+    },
+    [setStateImpl]
+  );
+  reactExports.useLayoutEffect(() => history.listen(setState), [history, setState]);
+  return /* @__PURE__ */ reactExports.createElement(
+    Router$1,
+    {
+      basename,
+      children,
+      location: state.location,
+      navigationType: state.action,
+      navigator: history
+    }
+  );
+}
+var ABSOLUTE_URL_REGEX2 = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
+var Link = reactExports.forwardRef(
+  function LinkWithRef({
+    onClick,
+    discover = "render",
+    prefetch = "none",
+    relative,
+    reloadDocument,
+    replace: replace2,
+    state,
+    target,
+    to,
+    preventScrollReset,
+    viewTransition,
+    ...rest
+  }, forwardedRef) {
+    let { basename } = reactExports.useContext(NavigationContext);
+    let isAbsolute = typeof to === "string" && ABSOLUTE_URL_REGEX2.test(to);
+    let absoluteHref;
+    let isExternal = false;
+    if (typeof to === "string" && isAbsolute) {
+      absoluteHref = to;
+      if (isBrowser) {
+        try {
+          let currentUrl = new URL(window.location.href);
+          let targetUrl = to.startsWith("//") ? new URL(currentUrl.protocol + to) : new URL(to);
+          let path = stripBasename(targetUrl.pathname, basename);
+          if (targetUrl.origin === currentUrl.origin && path != null) {
+            to = path + targetUrl.search + targetUrl.hash;
+          } else {
+            isExternal = true;
+          }
+        } catch (e) {
+          warning(
+            false,
+            `<Link to="${to}"> contains an invalid URL which will probably break when clicked - please update to a valid URL path.`
+          );
+        }
+      }
+    }
+    let href2 = useHref(to, { relative });
+    let [shouldPrefetch, prefetchRef, prefetchHandlers] = usePrefetchBehavior(
+      prefetch,
+      rest
+    );
+    let internalOnClick = useLinkClickHandler(to, {
+      replace: replace2,
+      state,
+      target,
+      preventScrollReset,
+      relative,
+      viewTransition
+    });
+    function handleClick(event) {
+      if (onClick) onClick(event);
+      if (!event.defaultPrevented) {
+        internalOnClick(event);
+      }
+    }
+    let link = (
+      // eslint-disable-next-line jsx-a11y/anchor-has-content
+      /* @__PURE__ */ reactExports.createElement(
+        "a",
+        {
+          ...rest,
+          ...prefetchHandlers,
+          href: absoluteHref || href2,
+          onClick: isExternal || reloadDocument ? onClick : handleClick,
+          ref: mergeRefs(forwardedRef, prefetchRef),
+          target,
+          "data-discover": !isAbsolute && discover === "render" ? "true" : void 0
+        }
+      )
+    );
+    return shouldPrefetch && !isAbsolute ? /* @__PURE__ */ reactExports.createElement(reactExports.Fragment, null, link, /* @__PURE__ */ reactExports.createElement(PrefetchPageLinks, { page: href2 })) : link;
+  }
+);
+Link.displayName = "Link";
+var NavLink = reactExports.forwardRef(
+  function NavLinkWithRef({
+    "aria-current": ariaCurrentProp = "page",
+    caseSensitive = false,
+    className: classNameProp = "",
+    end = false,
+    style: styleProp,
+    to,
+    viewTransition,
+    children,
+    ...rest
+  }, ref) {
+    let path = useResolvedPath(to, { relative: rest.relative });
+    let location = useLocation();
+    let routerState = reactExports.useContext(DataRouterStateContext);
+    let { navigator: navigator2, basename } = reactExports.useContext(NavigationContext);
+    let isTransitioning = routerState != null && // Conditional usage is OK here because the usage of a data router is static
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useViewTransitionState(path) && viewTransition === true;
+    let toPathname = navigator2.encodeLocation ? navigator2.encodeLocation(path).pathname : path.pathname;
+    let locationPathname = location.pathname;
+    let nextLocationPathname = routerState && routerState.navigation && routerState.navigation.location ? routerState.navigation.location.pathname : null;
+    if (!caseSensitive) {
+      locationPathname = locationPathname.toLowerCase();
+      nextLocationPathname = nextLocationPathname ? nextLocationPathname.toLowerCase() : null;
+      toPathname = toPathname.toLowerCase();
+    }
+    if (nextLocationPathname && basename) {
+      nextLocationPathname = stripBasename(nextLocationPathname, basename) || nextLocationPathname;
+    }
+    const endSlashPosition = toPathname !== "/" && toPathname.endsWith("/") ? toPathname.length - 1 : toPathname.length;
+    let isActive = locationPathname === toPathname || !end && locationPathname.startsWith(toPathname) && locationPathname.charAt(endSlashPosition) === "/";
+    let isPending = nextLocationPathname != null && (nextLocationPathname === toPathname || !end && nextLocationPathname.startsWith(toPathname) && nextLocationPathname.charAt(toPathname.length) === "/");
+    let renderProps = {
+      isActive,
+      isPending,
+      isTransitioning
+    };
+    let ariaCurrent = isActive ? ariaCurrentProp : void 0;
+    let className;
+    if (typeof classNameProp === "function") {
+      className = classNameProp(renderProps);
+    } else {
+      className = [
+        classNameProp,
+        isActive ? "active" : null,
+        isPending ? "pending" : null,
+        isTransitioning ? "transitioning" : null
+      ].filter(Boolean).join(" ");
+    }
+    let style = typeof styleProp === "function" ? styleProp(renderProps) : styleProp;
+    return /* @__PURE__ */ reactExports.createElement(
+      Link,
+      {
+        ...rest,
+        "aria-current": ariaCurrent,
+        className,
+        ref,
+        style,
+        to,
+        viewTransition
+      },
+      typeof children === "function" ? children(renderProps) : children
+    );
+  }
+);
+NavLink.displayName = "NavLink";
+var Form = reactExports.forwardRef(
+  ({
+    discover = "render",
+    fetcherKey,
+    navigate,
+    reloadDocument,
+    replace: replace2,
+    state,
+    method = defaultMethod,
+    action,
+    onSubmit,
+    relative,
+    preventScrollReset,
+    viewTransition,
+    ...props
+  }, forwardedRef) => {
+    let submit = useSubmit();
+    let formAction = useFormAction(action, { relative });
+    let formMethod = method.toLowerCase() === "get" ? "get" : "post";
+    let isAbsolute = typeof action === "string" && ABSOLUTE_URL_REGEX2.test(action);
+    let submitHandler = (event) => {
+      onSubmit && onSubmit(event);
+      if (event.defaultPrevented) return;
+      event.preventDefault();
+      let submitter = event.nativeEvent.submitter;
+      let submitMethod = (submitter == null ? void 0 : submitter.getAttribute("formmethod")) || method;
+      submit(submitter || event.currentTarget, {
+        fetcherKey,
+        method: submitMethod,
+        navigate,
+        replace: replace2,
+        state,
+        relative,
+        preventScrollReset,
+        viewTransition
+      });
+    };
+    return /* @__PURE__ */ reactExports.createElement(
+      "form",
+      {
+        ref: forwardedRef,
+        method: formMethod,
+        action: formAction,
+        onSubmit: reloadDocument ? onSubmit : submitHandler,
+        ...props,
+        "data-discover": !isAbsolute && discover === "render" ? "true" : void 0
+      }
+    );
+  }
+);
+Form.displayName = "Form";
+function getDataRouterConsoleError2(hookName) {
+  return `${hookName} must be used within a data router.  See https://reactrouter.com/en/main/routers/picking-a-router.`;
+}
+function useDataRouterContext3(hookName) {
+  let ctx = reactExports.useContext(DataRouterContext);
+  invariant(ctx, getDataRouterConsoleError2(hookName));
+  return ctx;
+}
+function useLinkClickHandler(to, {
+  target,
+  replace: replaceProp,
+  state,
+  preventScrollReset,
+  relative,
+  viewTransition
+} = {}) {
+  let navigate = useNavigate();
+  let location = useLocation();
+  let path = useResolvedPath(to, { relative });
+  return reactExports.useCallback(
+    (event) => {
+      if (shouldProcessLinkClick(event, target)) {
+        event.preventDefault();
+        let replace2 = replaceProp !== void 0 ? replaceProp : createPath(location) === createPath(path);
+        navigate(to, {
+          replace: replace2,
+          state,
+          preventScrollReset,
+          relative,
+          viewTransition
+        });
+      }
+    },
+    [
+      location,
+      navigate,
+      path,
+      replaceProp,
+      state,
+      target,
+      to,
+      preventScrollReset,
+      relative,
+      viewTransition
+    ]
+  );
+}
+var fetcherId = 0;
+var getUniqueFetcherId = () => `__${String(++fetcherId)}__`;
+function useSubmit() {
+  let { router } = useDataRouterContext3(
+    "useSubmit"
+    /* UseSubmit */
+  );
+  let { basename } = reactExports.useContext(NavigationContext);
+  let currentRouteId = useRouteId();
+  return reactExports.useCallback(
+    async (target, options = {}) => {
+      let { action, method, encType, formData, body } = getFormSubmissionInfo(
+        target,
+        basename
+      );
+      if (options.navigate === false) {
+        let key = options.fetcherKey || getUniqueFetcherId();
+        await router.fetch(key, currentRouteId, options.action || action, {
+          preventScrollReset: options.preventScrollReset,
+          formData,
+          body,
+          formMethod: options.method || method,
+          formEncType: options.encType || encType,
+          flushSync: options.flushSync
+        });
+      } else {
+        await router.navigate(options.action || action, {
+          preventScrollReset: options.preventScrollReset,
+          formData,
+          body,
+          formMethod: options.method || method,
+          formEncType: options.encType || encType,
+          replace: options.replace,
+          state: options.state,
+          fromRouteId: currentRouteId,
+          flushSync: options.flushSync,
+          viewTransition: options.viewTransition
+        });
+      }
+    },
+    [router, basename, currentRouteId]
+  );
+}
+function useFormAction(action, { relative } = {}) {
+  let { basename } = reactExports.useContext(NavigationContext);
+  let routeContext = reactExports.useContext(RouteContext);
+  invariant(routeContext, "useFormAction must be used inside a RouteContext");
+  let [match2] = routeContext.matches.slice(-1);
+  let path = { ...useResolvedPath(action ? action : ".", { relative }) };
+  let location = useLocation();
+  if (action == null) {
+    path.search = location.search;
+    let params = new URLSearchParams(path.search);
+    let indexValues = params.getAll("index");
+    let hasNakedIndexParam = indexValues.some((v) => v === "");
+    if (hasNakedIndexParam) {
+      params.delete("index");
+      indexValues.filter((v) => v).forEach((v) => params.append("index", v));
+      let qs = params.toString();
+      path.search = qs ? `?${qs}` : "";
+    }
+  }
+  if ((!action || action === ".") && match2.route.index) {
+    path.search = path.search ? path.search.replace(/^\?/, "?index&") : "?index";
+  }
+  if (basename !== "/") {
+    path.pathname = path.pathname === "/" ? basename : joinPaths([basename, path.pathname]);
+  }
+  return createPath(path);
+}
+function useViewTransitionState(to, opts = {}) {
+  let vtContext = reactExports.useContext(ViewTransitionContext);
+  invariant(
+    vtContext != null,
+    "`useViewTransitionState` must be used within `react-router-dom`'s `RouterProvider`.  Did you accidentally import `RouterProvider` from `react-router`?"
+  );
+  let { basename } = useDataRouterContext3(
+    "useViewTransitionState"
+    /* useViewTransitionState */
+  );
+  let path = useResolvedPath(to, { relative: opts.relative });
+  if (!vtContext.isTransitioning) {
+    return false;
+  }
+  let currentPath = stripBasename(vtContext.currentLocation.pathname, basename) || vtContext.currentLocation.pathname;
+  let nextPath = stripBasename(vtContext.nextLocation.pathname, basename) || vtContext.nextLocation.pathname;
+  return matchPath(path.pathname, nextPath) != null || matchPath(path.pathname, currentPath) != null;
+}
+new TextEncoder();
+/* @__PURE__ */ new Set([
+  ...NO_BODY_STATUS_CODES,
+  304
+]);
+const MasterCard = "./image/Mastercard.png";
+const Visa = "./image/Visa.png";
+const Complete = "./image/Complete.png";
 var jsx2 = function jsx3(type, props) {
   var args = arguments;
   if (props == null || !hasOwn.call(props, "css")) {
@@ -13575,6 +15820,1207 @@ function css() {
   }
   return serializeStyles(args);
 }
+const theme = {
+  color: {
+    black: "#000000",
+    white: "#FFFFFF",
+    gray: "#8B95A1",
+    cardBlack: "#333333",
+    gold: "#DDCD78",
+    text: "#0A0D13",
+    red: "#FF3D3D",
+    cardBrand: {
+      BC카드: "#F04651",
+      신한카드: "#0046FF",
+      카카오뱅크: "#FFE600",
+      현대카드: "#000000",
+      우리카드: "#007BC8",
+      롯데카드: "#ED1C24",
+      하나카드: "#009490",
+      국민카드: "#6A6056"
+    }
+  },
+  font: {
+    card: {
+      number: {
+        fontFamily: "Inter",
+        fontSize: "1.4rem",
+        fontStyle: "normal",
+        fontWeight: "500",
+        lineHeight: "2rem",
+        letterSpacing: "0.24rem"
+      }
+    },
+    cardNumberInput: {
+      title: {
+        fontFamily: "Noto Sans KR",
+        fontSize: "1.8rem",
+        fontStyle: "normal",
+        fontWeight: "700",
+        lineHeight: "normal"
+      },
+      caption: {
+        fontFamily: "Noto Sans KR",
+        fontSize: "0.95rem",
+        fontStyle: "normal",
+        fontWeight: "400",
+        lineHeight: "normal"
+      }
+    },
+    input: {
+      label: {
+        fontFamily: "Noto Sans",
+        fontSize: "1.2rem",
+        fontStyle: "normal",
+        fontWeight: "500",
+        lineHeight: "1.5rem"
+      }
+    }
+  }
+};
+const cardLayout$1 = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 77px 0 45px 0;
+`;
+const cardSection = css`
+  display: flex;
+  flex-direction: column;
+  width: 212px;
+  height: 132px;
+
+  border-radius: 5px;
+  background-color: ${theme.color.cardBlack};
+  box-shadow: 3px 3px 5px 0 #00000040;
+`;
+const cardContainer = css`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  width: 100%;
+  padding: 0.8rem;
+`;
+const cardFrame = css`
+  width: 5rem;
+  height: 3rem;
+
+  border-radius: 5px;
+  background-color: ${theme.color.gold};
+`;
+const cardType = css`
+  width: 5rem;
+  height: 3rem;
+`;
+const cardContentContainer = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 0.8rem;
+  width: 212px;
+  height: 132px;
+  margin: 8px 0 0 0;
+`;
+const cardContent = css`
+  display: flex;
+  align-items: center;
+
+  margin-left: 1.7rem;
+  gap: 10px;
+`;
+const cardContentText = css`
+  color: ${theme.color.white};
+  ${theme.font.card.number}
+`;
+const CARD_NUMBER = {
+  maxLength: 4
+};
+const CARD_EXPIRATION = {
+  minMonth: 1,
+  maxMonth: 12,
+  minYear: 25,
+  monthLength: 2,
+  yearLength: 2,
+  maxLength: 2
+};
+const CARD_CVC = {
+  maxLength: 3
+};
+const CARD_PASSWORD = {
+  maxLength: 2
+};
+const CARD_TYPE = {
+  visa: {
+    startsWith: "4"
+  },
+  masterCard: {
+    startsWith: ["51", "52", "53", "54", "55"]
+  }
+};
+const CARD_NUMBER_ERROR = {
+  onlyNumbers: "숫자만 입력 가능합니다.",
+  invalidFormat: "카드 번호 형식이 올바르지 않습니다."
+};
+const CARD_EXPIRATION_ERROR = {
+  onlyNumbers: "숫자만 입력 가능합니다.",
+  invalidLength: "2자리 이상 입력해 주세요.",
+  invalidMonth: `${CARD_EXPIRATION.minMonth}~${CARD_EXPIRATION.maxMonth} 사이의 값을 입력해 주세요.`,
+  invalidYear: `${CARD_EXPIRATION.minYear}년 이상의 값을 입력해 주세요.`
+};
+const CARD_CVC_ERROR = {
+  onlyNumbers: "숫자만 입력 가능합니다.",
+  invalidLength: "3자리 이상 입력해 주세요."
+};
+const CARD_PASSWORD_ERROR = {
+  onlyNumbers: "숫자만 입력 가능합니다.",
+  invalidLength: "비밀번호는 2자리 숫자여야 합니다."
+};
+function Dot({ value, css: customCss, className }) {
+  const length2 = (value == null ? void 0 : value.toString().length) || 0;
+  const masked = "*".repeat(length2);
+  return /* @__PURE__ */ jsx$1("span", { css: [dotStyle, customCss, className], children: masked });
+}
+const dotStyle = css`
+  color: ${theme.color.white};
+  ${theme.font.card.number};
+`;
+function Card({ cardNumber, cardExpirationDate, brand }) {
+  const theme2 = useTheme();
+  const { first, second, third, forth } = cardNumber;
+  const firstString = first == null ? void 0 : first.toString();
+  const masterCardType = firstString && CARD_TYPE.masterCard.startsWith.some(
+    (prefix2) => firstString.startsWith(prefix2)
+  );
+  const visaCardType = firstString && firstString.startsWith(CARD_TYPE.visa.startsWith);
+  const checkCardType = () => {
+    if (masterCardType) {
+      return MasterCard;
+    } else if (visaCardType) {
+      return Visa;
+    }
+  };
+  const hasFilledExpirationField = Boolean(cardExpirationDate.month || cardExpirationDate.year);
+  const fontColor = brand === "카카오뱅크" ? css`color: ${theme2.color.black};` : void 0;
+  const brandBackground = brand ? css`background-color: ${theme2.color.cardBrand[brand]};` : void 0;
+  return /* @__PURE__ */ jsx$1("section", { css: cardLayout$1, children: /* @__PURE__ */ jsxs("div", { css: [cardSection, brandBackground], children: [
+    /* @__PURE__ */ jsxs("div", { css: cardContainer, children: [
+      /* @__PURE__ */ jsx$1("div", { css: cardFrame }),
+      checkCardType() && /* @__PURE__ */ jsx$1("div", { children: /* @__PURE__ */ jsx$1("img", { css: cardType, src: checkCardType() ?? "", alt: "카드 타입" }) })
+    ] }),
+    /* @__PURE__ */ jsxs("div", { css: cardContentContainer, children: [
+      /* @__PURE__ */ jsxs("div", { css: cardContent, children: [
+        /* @__PURE__ */ jsx$1("span", { css: [cardContentText, fontColor], children: first }),
+        /* @__PURE__ */ jsx$1("span", { css: [cardContentText, fontColor], children: second }),
+        /* @__PURE__ */ jsx$1(Dot, { value: third, className: [cardContentText, fontColor] }),
+        /* @__PURE__ */ jsx$1(Dot, { value: forth, className: [cardContentText, fontColor] })
+      ] }),
+      /* @__PURE__ */ jsx$1("div", { css: cardContent, children: hasFilledExpirationField && /* @__PURE__ */ jsxs("span", { css: [cardContentText, fontColor], children: [
+        cardExpirationDate.month,
+        "/",
+        cardExpirationDate.year
+      ] }) })
+    ] })
+  ] }) });
+}
+const sectionTitle = css`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+`;
+const sectionTitleText = css`
+  color: ${theme.color.black};
+  ${theme.font.cardNumberInput.title}
+`;
+const sectionTitleSubText = css`
+  color: ${theme.color.gray};
+  ${theme.font.cardNumberInput.caption}
+`;
+const errorMessageStyle = css`
+  color: ${theme.color.red};
+  ${theme.font.cardNumberInput.caption};
+`;
+const errorInputStyle = css`
+  border: 1px solid ${theme.color.red};
+`;
+function Title({ title: title2, subTitle }) {
+  return /* @__PURE__ */ jsxs("div", { css: sectionTitle, children: [
+    /* @__PURE__ */ jsx$1("span", { css: sectionTitleText, children: title2 }),
+    /* @__PURE__ */ jsx$1("span", { css: sectionTitleSubText, children: subTitle })
+  ] });
+}
+const inputContainer$1 = css`
+  display: flex;
+  height: 3.2rem;
+  padding: 0.8rem;
+  align-items: center;
+  gap: 0.8rem;
+
+  flex: 1 0 0;
+  width: 100%;
+
+  border-radius: 2px;
+  border: 1.015px solid var(--Stroke, #acacac);
+`;
+const inputLabel = css`
+  ${theme.font.input.label}
+  color: ${theme.color.text};
+`;
+const defaultContextValue = {
+  id: ""
+};
+const InputContext = reactExports.createContext(defaultContextValue);
+const useInputContext = () => reactExports.useContext(InputContext);
+const InputGroup = ({ id: providedId, children }) => {
+  const generatedId = reactExports.useId();
+  const id = providedId || generatedId;
+  return /* @__PURE__ */ jsx$1(InputContext.Provider, { value: { id }, children });
+};
+function Label(props) {
+  const { children, htmlFor: explicitHtmlFor, ...rest } = props;
+  const { id: contextId } = useInputContext();
+  const htmlFor = explicitHtmlFor || contextId;
+  return /* @__PURE__ */ jsx$1("label", { css: inputLabel, htmlFor, ...rest, children });
+}
+function Input(props) {
+  const { id: explicitId, ...rest } = props;
+  const { id: contextId } = useInputContext();
+  const id = explicitId || contextId;
+  return /* @__PURE__ */ jsx$1("input", { css: inputContainer$1, id, ...rest });
+}
+Input.Group = InputGroup;
+Input.Label = Label;
+const inputContainer = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.8rem;
+  width: 100%;
+`;
+const inputSection = css`
+  display: flex;
+  flex-direction: row;
+  gap: 0.8rem;
+  width: 100%;
+`;
+const cardPeriodInputLayout = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+
+  width: 100%;
+  padding: 0 3.1rem 0 3.1rem;
+  gap: 16px;
+`;
+function CardPasswordInput({ cardPassword, error, onChange, passwordRef, tabIndex }) {
+  const getErrorMessage = () => {
+    if (error === CARD_PASSWORD_ERROR.onlyNumbers) {
+      return CARD_PASSWORD_ERROR.onlyNumbers;
+    }
+    if (error === CARD_PASSWORD_ERROR.invalidLength) {
+      return CARD_PASSWORD_ERROR.invalidLength;
+    }
+    return "";
+  };
+  return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
+    /* @__PURE__ */ jsx$1(Title, { title: "비밀번호를 입력해 주세요", subTitle: "앞의 2자리를 입력해주세요" }),
+    /* @__PURE__ */ jsx$1(Input.Group, { id: "password", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
+      /* @__PURE__ */ jsx$1(Input.Label, { children: "비밀번호 앞 2자리" }),
+      /* @__PURE__ */ jsx$1("article", { css: inputSection, children: /* @__PURE__ */ jsx$1(
+        Input,
+        {
+          ref: passwordRef,
+          type: "password",
+          name: "password",
+          maxLength: CARD_PASSWORD.maxLength,
+          value: cardPassword == null ? void 0 : cardPassword.toString(),
+          onChange,
+          css: error ? errorInputStyle : void 0,
+          tabIndex
+        }
+      ) }),
+      error && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getErrorMessage() })
+    ] }) })
+  ] });
+}
+function CardCVCInput({
+  cardCVC,
+  error,
+  cvcRef,
+  onChange,
+  tabIndex
+}) {
+  const errorMessage = () => {
+    if (error === CARD_CVC_ERROR.onlyNumbers) {
+      return CARD_CVC_ERROR.onlyNumbers;
+    }
+    if (error === CARD_CVC_ERROR.invalidLength) {
+      return CARD_CVC_ERROR.invalidLength;
+    }
+    return "";
+  };
+  return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
+    /* @__PURE__ */ jsx$1(Title, { title: "CVC 번호를 입력해 주세요" }),
+    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-cvc", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
+      /* @__PURE__ */ jsx$1(Input.Label, { children: "CVC" }),
+      /* @__PURE__ */ jsx$1("article", { css: inputSection, children: /* @__PURE__ */ jsx$1(
+        Input,
+        {
+          ref: cvcRef,
+          type: "text",
+          name: "cvc",
+          maxLength: CARD_CVC.maxLength,
+          value: cardCVC == null ? void 0 : cardCVC.toString(),
+          onChange,
+          css: error ? errorInputStyle : void 0,
+          tabIndex
+        }
+      ) }),
+      error && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: errorMessage() })
+    ] }) })
+  ] });
+}
+function CardPeriodInput({
+  cardExpirationDate,
+  error,
+  monthRef,
+  yearRef,
+  onChange,
+  onKeyDown,
+  tabIndex,
+  autoFocus
+}) {
+  const errorMessage = error.month || error.year;
+  return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
+    /* @__PURE__ */ jsx$1(Title, { title: "카드 유효기간을 입력해 주세요", subTitle: "월/년도(MMYY)를 순서대로 입력해 주세요." }),
+    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
+      /* @__PURE__ */ jsx$1(Input.Label, { children: "유효기간" }),
+      /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsx$1(
+          Input,
+          {
+            ref: monthRef,
+            type: "text",
+            name: "month",
+            value: cardExpirationDate.month,
+            maxLength: CARD_EXPIRATION.monthLength,
+            onChange,
+            onKeyDown,
+            css: error.month ? errorInputStyle : void 0,
+            tabIndex: tabIndex ? tabIndex + 1 : void 0,
+            autoFocus
+          }
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration-year", children: /* @__PURE__ */ jsx$1(
+          Input,
+          {
+            ref: yearRef,
+            type: "text",
+            name: "year",
+            value: cardExpirationDate.year,
+            maxLength: CARD_EXPIRATION.yearLength,
+            onChange,
+            onKeyDown,
+            css: error.year ? errorInputStyle : void 0,
+            tabIndex: tabIndex ? tabIndex + 2 : void 0
+          }
+        ) })
+      ] }),
+      errorMessage && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: errorMessage })
+    ] }) })
+  ] });
+}
+const DropdownContainer = css`
+  display: flex;
+  height: 3.2rem;
+  padding: 0.8rem;
+  align-items: center;
+  gap: 0.8rem;
+
+  flex: 1 0 0;
+  width: 100%;
+
+  border-radius: 2px;
+  border: 1.015px solid var(--Stroke, #acacac);
+`;
+function Dropdown({ options, value, onChange }) {
+  return /* @__PURE__ */ jsx$1(
+    "select",
+    {
+      css: DropdownContainer,
+      name: "card-brand",
+      id: "card-brand-select",
+      value,
+      onChange,
+      children: options.map((option) => {
+        return /* @__PURE__ */ jsx$1("option", { value: option, children: option }, option);
+      })
+    }
+  );
+}
+var CardBrands = /* @__PURE__ */ ((CardBrands2) => {
+  CardBrands2["BC카드"] = "BC카드";
+  CardBrands2["신한카드"] = "신한카드";
+  CardBrands2["카카오뱅크"] = "카카오뱅크";
+  CardBrands2["현대카드"] = "현대카드";
+  CardBrands2["우리카드"] = "우리카드";
+  CardBrands2["롯데카드"] = "롯데카드";
+  CardBrands2["하나카드"] = "하나카드";
+  CardBrands2["국민카드"] = "국민카드";
+  return CardBrands2;
+})(CardBrands || {});
+const cardBrandOptions = Object.values(CardBrands);
+function CardBrand({ value, onChange, brandRef, tabIndex }) {
+  return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
+    /* @__PURE__ */ jsx$1(Title, { title: "카드사를 선택해 주세요", subTitle: "현재 국내 카드사만 가능합니다." }),
+    /* @__PURE__ */ jsx$1(
+      Dropdown,
+      {
+        ref: brandRef,
+        options: cardBrandOptions,
+        value: value ?? "",
+        onChange,
+        tabIndex
+      }
+    )
+  ] });
+}
+const cardNumberInputLayout = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+
+  width: 100%;
+  padding: 0 3.1rem 0 3.1rem;
+  gap: 16px;
+`;
+function CardNumberInput({
+  cardNumber,
+  error,
+  inputRefs,
+  onChange,
+  onKeyDown,
+  tabIndex,
+  autoFocus
+}) {
+  var _a, _b, _c, _d;
+  const errorMessage = error.first || error.second || error.third || error.forth;
+  return /* @__PURE__ */ jsxs("div", { css: cardNumberInputLayout, children: [
+    /* @__PURE__ */ jsx$1(Title, { title: "결제할 카드 번호를 입력해 주세요", subTitle: "본인 명의의 카드만 결제 가능합니다." }),
+    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
+      /* @__PURE__ */ jsx$1(Input.Label, { children: "카드 번호" }),
+      /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsx$1(
+          Input,
+          {
+            ref: inputRefs == null ? void 0 : inputRefs[0],
+            type: "text",
+            name: "first",
+            maxLength: CARD_NUMBER.maxLength,
+            value: (_a = cardNumber.first) == null ? void 0 : _a.toString(),
+            onChange,
+            onKeyDown,
+            css: error.first ? errorInputStyle : void 0,
+            tabIndex: tabIndex ? tabIndex + 1 : void 0,
+            autoFocus
+          }
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-second", children: /* @__PURE__ */ jsx$1(
+          Input,
+          {
+            ref: inputRefs == null ? void 0 : inputRefs[1],
+            type: "text",
+            name: "second",
+            maxLength: CARD_NUMBER.maxLength,
+            value: (_b = cardNumber.second) == null ? void 0 : _b.toString(),
+            onChange,
+            onKeyDown,
+            css: error.second ? errorInputStyle : void 0,
+            tabIndex: tabIndex ? tabIndex + 2 : void 0
+          }
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-third", children: /* @__PURE__ */ jsx$1(
+          Input,
+          {
+            ref: inputRefs == null ? void 0 : inputRefs[2],
+            type: "text",
+            name: "third",
+            maxLength: CARD_NUMBER.maxLength,
+            value: (_c = cardNumber.third) == null ? void 0 : _c.toString(),
+            onChange,
+            onKeyDown,
+            css: error.third ? errorInputStyle : void 0,
+            tabIndex: tabIndex ? tabIndex + 3 : void 0
+          }
+        ) }),
+        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-forth", children: /* @__PURE__ */ jsx$1(
+          Input,
+          {
+            ref: inputRefs == null ? void 0 : inputRefs[3],
+            type: "text",
+            name: "forth",
+            maxLength: CARD_NUMBER.maxLength,
+            value: (_d = cardNumber.forth) == null ? void 0 : _d.toString(),
+            onChange,
+            onKeyDown,
+            css: error.forth ? errorInputStyle : void 0,
+            tabIndex: tabIndex ? tabIndex + 4 : void 0
+          }
+        ) })
+      ] }),
+      errorMessage && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: errorMessage })
+    ] }) })
+  ] });
+}
+const buttonContainer = css`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+    width: 100%;
+    gap: 16px;
+    z-index: 100;
+`;
+const defaultButton = css`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: ${theme.color.cardBlack};
+    color: ${theme.color.white};
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+
+    width: 320px;
+    height: 44px;
+    border-radius: 5px;
+`;
+const bottomButton = css`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: ${theme.color.cardBlack};
+    color: ${theme.color.white};
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    
+    width: 428px;
+    height: 52px;
+`;
+function Button({ content, style }) {
+  const buttonStyle = style === "bottom" ? bottomButton : defaultButton;
+  return /* @__PURE__ */ jsx$1("div", { css: buttonContainer, children: /* @__PURE__ */ jsx$1("button", { css: buttonStyle, children: content }) });
+}
+const isOnlyDigits = (value) => /^\d*$/.test(value);
+const initialCardNumber = {
+  first: "",
+  second: "",
+  third: "",
+  forth: ""
+};
+const initialError = {
+  first: "",
+  second: "",
+  third: "",
+  forth: ""
+};
+const useCardNumber = (onComplete) => {
+  const [cardNumber, setCardNumber] = reactExports.useState(initialCardNumber);
+  const [error, setError] = reactExports.useState(initialError);
+  const inputRefs = [
+    reactExports.useRef(null),
+    reactExports.useRef(null),
+    reactExports.useRef(null),
+    reactExports.useRef(null)
+  ];
+  const onChange = (e) => {
+    var _a;
+    const { name, value } = e.target;
+    const updatedError = { ...error };
+    const cardFields = ["first", "second", "third", "forth"];
+    cardFields.forEach((field) => {
+      if (field !== name && updatedError[field] === CARD_NUMBER_ERROR.onlyNumbers) {
+        updatedError[field] = "";
+      }
+    });
+    const isNumber = isOnlyDigits(value);
+    if (!isNumber && value !== "") {
+      setError({
+        ...updatedError,
+        [name]: CARD_NUMBER_ERROR.onlyNumbers
+      });
+      return;
+    }
+    const newCardNumber = {
+      ...cardNumber,
+      [name]: value
+    };
+    setCardNumber({
+      ...cardNumber,
+      [name]: value
+    });
+    setError({
+      ...updatedError,
+      [name]: ""
+    });
+    const index = getIndexFromName(name);
+    if (value.length === CARD_NUMBER.maxLength) {
+      if (index < 3) {
+        (_a = inputRefs[index + 1].current) == null ? void 0 : _a.focus();
+        return;
+      }
+      if (index === 3) {
+        if (newCardNumber.first.length === CARD_NUMBER.maxLength && newCardNumber.second.length === CARD_NUMBER.maxLength && newCardNumber.third.length === CARD_NUMBER.maxLength && newCardNumber.forth.length === CARD_NUMBER.maxLength) {
+          setTimeout(() => onComplete == null ? void 0 : onComplete(), 100);
+        }
+      }
+    }
+  };
+  const onKeyDown = (e) => {
+    var _a;
+    const { name, value } = e.target;
+    if (e.key === "Backspace" && value.length === 0) {
+      const index = getIndexFromName(name);
+      if (index > 0) {
+        (_a = inputRefs[index - 1].current) == null ? void 0 : _a.focus();
+      }
+    }
+  };
+  const onBlur = (e) => {
+    const { name, value } = e.target;
+    if (value === "") {
+      return;
+    }
+    if (value.length < CARD_NUMBER.maxLength) {
+      setError({
+        ...error,
+        [name]: CARD_NUMBER_ERROR.invalidFormat
+      });
+    }
+  };
+  const onFocus = (e) => {
+    const { name } = e.target;
+    if (error[name]) {
+      setError({
+        ...error,
+        [name]: ""
+      });
+    }
+  };
+  const getIndexFromName = (name) => {
+    switch (name) {
+      case "first":
+        return 0;
+      case "second":
+        return 1;
+      case "third":
+        return 2;
+      case "forth":
+        return 3;
+      default:
+        return 0;
+    }
+  };
+  const resetCardNumber = () => {
+    setCardNumber(initialCardNumber);
+    setError(initialError);
+  };
+  const isCardNumberValid = () => {
+    const { first, second, third, forth } = cardNumber;
+    return first.length === CARD_NUMBER.maxLength && second.length === CARD_NUMBER.maxLength && third.length === CARD_NUMBER.maxLength && forth.length === CARD_NUMBER.maxLength;
+  };
+  return {
+    cardNumber,
+    error,
+    inputRefs,
+    onChange,
+    onKeyDown,
+    onBlur,
+    onFocus,
+    resetCardNumber,
+    isValid: isCardNumberValid()
+  };
+};
+const useCardBrand = (onComplete) => {
+  const [brand, setBrand] = reactExports.useState(null);
+  const brandRef = reactExports.useRef(null);
+  const onChange = (e) => {
+    const selectedBrand = e.target.value;
+    setBrand(selectedBrand || null);
+    if (selectedBrand && onComplete) {
+      setTimeout(() => onComplete(), 100);
+    }
+  };
+  const resetBrand = () => {
+    setBrand(null);
+  };
+  const isBrandSelected = () => {
+    return brand !== null;
+  };
+  return {
+    brand,
+    brandRef,
+    onChange,
+    resetBrand,
+    isBrandSelected,
+    isValid: isBrandSelected()
+  };
+};
+const initialCardExpirationDate = {
+  month: "",
+  year: ""
+};
+const initialCardExpirationDateError = {
+  month: "",
+  year: ""
+};
+const useCardExpiration = (onComplete) => {
+  const [cardExpirationDate, setCardExpirationDate] = reactExports.useState(initialCardExpirationDate);
+  const [error, setError] = reactExports.useState(initialCardExpirationDateError);
+  const monthRef = reactExports.useRef(null);
+  const yearRef = reactExports.useRef(null);
+  const onChange = (e) => {
+    var _a;
+    const { name, value } = e.target;
+    const isNumber = isOnlyDigits(value);
+    if (!isNumber && value !== "") {
+      setError({
+        ...error,
+        [name]: CARD_EXPIRATION_ERROR.onlyNumbers
+      });
+      return;
+    }
+    if (isNumber) {
+      if (name === "month" && value.length > 0) {
+        const monthValue = Number(value);
+        if (monthValue < CARD_EXPIRATION.minMonth || monthValue > CARD_EXPIRATION.maxMonth) {
+          setError({
+            ...error,
+            month: CARD_EXPIRATION_ERROR.invalidMonth
+          });
+          setCardExpirationDate({
+            ...cardExpirationDate,
+            month: value
+          });
+          return;
+        }
+      }
+      if (name === "year" && value.length === CARD_EXPIRATION.monthLength) {
+        const yearValue = Number(value);
+        if (yearValue < CARD_EXPIRATION.minYear) {
+          setError({
+            ...error,
+            year: CARD_EXPIRATION_ERROR.invalidYear
+          });
+          setCardExpirationDate({
+            ...cardExpirationDate,
+            year: value
+          });
+          return;
+        }
+        if (value.length === CARD_EXPIRATION.yearLength) {
+          const monthValue = cardExpirationDate.month;
+          if (monthValue && monthValue.length === CARD_EXPIRATION.monthLength) {
+            const month = Number(monthValue);
+            const year = Number(value);
+            if (month >= CARD_EXPIRATION.minMonth && month <= CARD_EXPIRATION.maxMonth && year >= CARD_EXPIRATION.minYear && !error.month) {
+              setTimeout(() => onComplete == null ? void 0 : onComplete(), 100);
+            }
+          }
+        }
+      }
+      setCardExpirationDate({
+        ...cardExpirationDate,
+        [name]: value
+      });
+      setError({
+        ...error,
+        [name]: ""
+      });
+    }
+    if (value.length === CARD_EXPIRATION.monthLength) {
+      (_a = yearRef.current) == null ? void 0 : _a.focus();
+      return;
+    }
+  };
+  const onYearKeyDown = (e) => {
+    var _a;
+    if (e.key === "Backspace" && !cardExpirationDate.year) {
+      (_a = monthRef.current) == null ? void 0 : _a.focus();
+    }
+  };
+  const onBlur = (e) => {
+    const { name, value } = e.target;
+    if (value === "") {
+      return;
+    }
+    if (value.length < CARD_EXPIRATION.maxLength) {
+      setError({
+        ...error,
+        [name]: CARD_EXPIRATION_ERROR.invalidLength
+      });
+    }
+  };
+  const onFocus = (e) => {
+    const { name } = e.target;
+    if (error[name]) {
+      setError({
+        ...error,
+        [name]: ""
+      });
+    }
+  };
+  const resetCardExpiration = () => {
+    setCardExpirationDate(initialCardExpirationDate);
+    setError(initialCardExpirationDateError);
+  };
+  const isCardExpirationValid = () => {
+    const { month, year } = cardExpirationDate;
+    const monthValue = Number(month);
+    const yearValue = Number(year);
+    return month.length === CARD_EXPIRATION.monthLength && year.length === CARD_EXPIRATION.yearLength && monthValue >= CARD_EXPIRATION.minMonth && monthValue <= CARD_EXPIRATION.maxMonth && yearValue >= CARD_EXPIRATION.minYear && !error.month && !error.year;
+  };
+  return {
+    value: cardExpirationDate,
+    cardExpirationDateError: error,
+    monthRef,
+    yearRef,
+    onChange,
+    onYearKeyDown,
+    onBlur,
+    onFocus,
+    resetCardExpiration,
+    isValid: isCardExpirationValid()
+  };
+};
+const useCardCVC = (onComplete) => {
+  const [cardCVC, setCardCVC] = reactExports.useState("");
+  const [error, setError] = reactExports.useState("");
+  const cvcRef = reactExports.useRef(null);
+  const handleCardCVCChange = (e) => {
+    const { value } = e.target;
+    const isNumber = isOnlyDigits(value);
+    if (!isNumber && value !== "") {
+      setError(CARD_CVC_ERROR.onlyNumbers);
+      return;
+    }
+    setCardCVC(value === "" ? "" : value);
+    setError("");
+    if (value.length === CARD_CVC.maxLength) {
+      setTimeout(() => onComplete == null ? void 0 : onComplete(), 100);
+    }
+  };
+  const resetCardCVC = () => {
+    setCardCVC("");
+    setError("");
+  };
+  const isCardCVCValid = () => {
+    return cardCVC !== "" && (cardCVC == null ? void 0 : cardCVC.length) === CARD_CVC.maxLength;
+  };
+  return {
+    cardCVC,
+    cardCVCError: error,
+    cvcRef,
+    handleCardCVCChange,
+    resetCardCVC,
+    isValid: isCardCVCValid()
+  };
+};
+const useCardPassword = (onComplete) => {
+  const [cardPassword, setCardPassword] = reactExports.useState("");
+  const [cardPasswordError, setCardPasswordError] = reactExports.useState("");
+  const passwordRef = reactExports.useRef(null);
+  const handleCardPasswordChange = (e) => {
+    const { value } = e.target;
+    const isNumber = isOnlyDigits(value);
+    if (isNumber) {
+      setCardPassword(value);
+      setCardPasswordError("");
+      if (value.length === CARD_PASSWORD.maxLength && onComplete) ;
+    } else {
+      setCardPasswordError("");
+    }
+  };
+  const resetCardPassword = () => {
+    setCardPassword("");
+    setCardPasswordError("");
+  };
+  const isCardPasswordValid = () => {
+    return cardPassword !== null && cardPassword.toString().length === CARD_CVC.maxLength && !cardPasswordError;
+  };
+  const getCardPasswordErrorMessage = () => {
+    if (!cardPasswordError) return null;
+    return CARD_PASSWORD_ERROR.onlyNumbers;
+  };
+  const isPasswordValid = () => {
+    return cardPassword.length === CARD_PASSWORD.maxLength;
+  };
+  return {
+    cardPassword,
+    cardPasswordError,
+    passwordRef,
+    handleCardPasswordChange,
+    resetCardPassword,
+    isCardPasswordValid,
+    getCardPasswordErrorMessage,
+    isValid: isPasswordValid()
+  };
+};
+const useProgressForm = () => {
+  const [showCardBrand, setShowCardBrand] = reactExports.useState(false);
+  const [showCardPeriod, setShowCardPeriod] = reactExports.useState(false);
+  const [showCardCVC, setShowCardCVC] = reactExports.useState(false);
+  const [showCardPassword, setShowCardPassword] = reactExports.useState(false);
+  const showBrandStep = () => {
+    setShowCardBrand(true);
+  };
+  const showPeriodStep = () => {
+    setShowCardPeriod(true);
+  };
+  const showCVCStep = () => {
+    setShowCardCVC(true);
+  };
+  const showPasswordStep = () => {
+    setShowCardPassword(true);
+  };
+  return {
+    showCardBrand,
+    showCardPeriod,
+    showCardCVC,
+    showCardPassword,
+    showBrandStep,
+    showPeriodStep,
+    showCVCStep,
+    showPasswordStep
+  };
+};
+const appLayout = css`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+    
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  width: 430px;
+  height: 750px;
+  overflow: auto;
+  border: 1px solid #E2E2E2;
+`;
+const mainLayout = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+`;
+const cardLayout = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin: 45px 0 45px 0;
+`;
+function HomePage() {
+  const {
+    showCardBrand,
+    showCardPeriod,
+    showCardCVC,
+    showCardPassword,
+    showBrandStep,
+    showPeriodStep,
+    showCVCStep,
+    showPasswordStep
+  } = useProgressForm();
+  const {
+    cardNumber,
+    error: cardNumberError,
+    inputRefs,
+    onChange: handleCardNumberChange,
+    onKeyDown: handleCardNumberKeyDown,
+    onBlur: handleCardNumberBlur,
+    isValid: isCardNumberValid
+  } = useCardNumber(() => {
+    showBrandStep();
+    setTimeout(() => {
+      var _a;
+      return (_a = brandRef.current) == null ? void 0 : _a.focus();
+    }, 1);
+  });
+  const {
+    brand,
+    brandRef,
+    onChange,
+    isValid: isCardBrandValid
+  } = useCardBrand(() => {
+    showPeriodStep();
+    setTimeout(() => {
+      var _a;
+      return (_a = monthRef.current) == null ? void 0 : _a.focus();
+    }, 100);
+  });
+  const {
+    value: cardExpirationDate,
+    cardExpirationDateError,
+    monthRef,
+    yearRef,
+    onChange: handleCardExpirationChange,
+    onYearKeyDown: handleCardExpirationKeyDown,
+    onBlur: handleCardExpirationBlur,
+    isValid: isCardExpirationValid
+  } = useCardExpiration(() => {
+    showCVCStep();
+    setTimeout(() => {
+      var _a;
+      return (_a = cvcRef.current) == null ? void 0 : _a.focus();
+    }, 100);
+  });
+  const {
+    cardCVC,
+    cardCVCError,
+    cvcRef,
+    handleCardCVCChange,
+    isValid: isCardCVCValid
+  } = useCardCVC(() => {
+    showPasswordStep();
+    setTimeout(() => {
+      var _a;
+      return (_a = passwordRef.current) == null ? void 0 : _a.focus();
+    }, 100);
+  });
+  const {
+    cardPassword,
+    cardPasswordError,
+    passwordRef,
+    handleCardPasswordChange,
+    getCardPasswordErrorMessage,
+    isValid: isCardPasswordValid
+  } = useCardPassword();
+  const showConfirmButton = isCardNumberValid && isCardBrandValid && isCardExpirationValid && isCardCVCValid && isCardPasswordValid;
+  return /* @__PURE__ */ jsxs("main", { css: mainLayout, children: [
+    /* @__PURE__ */ jsx$1(Card, { cardNumber, cardExpirationDate, brand }),
+    /* @__PURE__ */ jsxs("section", { css: cardLayout, children: [
+      showCardPassword && /* @__PURE__ */ jsx$1(
+        CardPasswordInput,
+        {
+          cardPassword,
+          erorr: cardPasswordError,
+          onChange: handleCardPasswordChange,
+          getCardPasswordErrorMessage,
+          tabIndex: 9
+        }
+      ),
+      showCardCVC && /* @__PURE__ */ jsx$1(
+        CardCVCInput,
+        {
+          cardCVC,
+          error: cardCVCError,
+          cvcRef,
+          onChange: handleCardCVCChange,
+          tabIndex: 8
+        }
+      ),
+      showCardPeriod && /* @__PURE__ */ jsx$1(
+        CardPeriodInput,
+        {
+          cardExpirationDate,
+          error: cardExpirationDateError,
+          onChange: handleCardExpirationChange,
+          monthRef,
+          yearRef,
+          onKeyDown: handleCardExpirationKeyDown,
+          onBlur: handleCardExpirationBlur,
+          tabIndex: 6,
+          autoFocus: true
+        }
+      ),
+      showCardBrand && /* @__PURE__ */ jsx$1(
+        CardBrand,
+        {
+          value: brand,
+          onChange,
+          brandRef,
+          error: cardNumberError,
+          tabIndex: 5
+        }
+      ),
+      /* @__PURE__ */ jsx$1(
+        CardNumberInput,
+        {
+          cardNumber,
+          error: cardNumberError,
+          inputRefs,
+          onChange: handleCardNumberChange,
+          onKeyDown: handleCardNumberKeyDown,
+          onBlur: handleCardNumberBlur,
+          tabIndex: 1,
+          autoFocus: true
+        }
+      )
+    ] }),
+    showConfirmButton && /* @__PURE__ */ jsx$1(Link, { to: "/complete", state: { cardNumber, brand }, children: /* @__PURE__ */ jsx$1(Button, { content: "확인", style: "bottom" }) })
+  ] });
+}
+const pageContainer = css`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+  padding: 0 3.1rem 0 3.1rem;
+`;
+const completeImage = css`
+  width: 76px;
+  height: 76px;
+`;
+const title = css`
+  margin: 25px 0 25px 0;
+  font-weight: 700;
+  font-size: 25px;
+  line-height: 1.5;
+  text-align: center;
+  color: #353C49;
+`;
+function CardRegistrationCompletePage() {
+  const location = useLocation();
+  const { cardNumber, brand } = location.state || {};
+  if (!cardNumber || !brand) {
+    return /* @__PURE__ */ jsx$1(Navigate, { to: "/", replace: true });
+  }
+  return /* @__PURE__ */ jsxs("div", { css: pageContainer, children: [
+    /* @__PURE__ */ jsx$1("img", { src: Complete, css: completeImage }),
+    /* @__PURE__ */ jsxs("h1", { css: title, children: [
+      cardNumber.first,
+      "로 시작하는",
+      /* @__PURE__ */ jsx$1("br", {}),
+      brand,
+      "가 등록되었어요."
+    ] }),
+    /* @__PURE__ */ jsx$1(Link, { to: "/", children: /* @__PURE__ */ jsx$1(Button, { content: "확인", style: "default" }) })
+  ] });
+}
+const Router = () => /* @__PURE__ */ jsxs(Routes, { children: [
+  /* @__PURE__ */ jsx$1(Route, { path: "/*", element: /* @__PURE__ */ jsx$1(HomePage, {}) }),
+  /* @__PURE__ */ jsx$1(Route, { path: "/complete", element: /* @__PURE__ */ jsx$1(CardRegistrationCompletePage, {}) })
+] });
 const Reset = css`
   html,
   body,
@@ -13750,714 +17196,16 @@ const GlobalStyle = css`
     margin: 0 auto;
   }
 
-  @media (min-width: 430px) {
-    #root {
-      max-width: var(--max-width);
-      box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
-    }
-  }
-
   ::-webkit-scrollbar {
     display: none;
   }
 `;
-const theme = {
-  color: {
-    black: "#000000",
-    white: "#FFFFFF",
-    gray: "#8B95A1",
-    cardBlack: "#333333",
-    gold: "#DDCD78",
-    text: "#0A0D13",
-    red: "#FF3D3D"
-  },
-  font: {
-    card: {
-      number: {
-        fontFamily: "Inter",
-        fontSize: "1.4rem",
-        fontStyle: "normal",
-        fontWeight: "500",
-        lineHeight: "2rem",
-        letterSpacing: "0.24rem"
-      }
-    },
-    cardNumberInput: {
-      title: {
-        fontFamily: "Noto Sans KR",
-        fontSize: "1.8rem",
-        fontStyle: "normal",
-        fontWeight: "700",
-        lineHeight: "normal"
-      },
-      caption: {
-        fontFamily: "Noto Sans KR",
-        fontSize: "0.95rem",
-        fontStyle: "normal",
-        fontWeight: "400",
-        lineHeight: "normal"
-      }
-    },
-    input: {
-      label: {
-        fontFamily: "Noto Sans",
-        fontSize: "1.2rem",
-        fontStyle: "normal",
-        fontWeight: "500",
-        lineHeight: "1.5rem"
-      }
-    }
-  }
-};
-const MasterCard = "./image/Mastercard.png";
-const Visa = "./image/Visa.png";
-const cardLayout = css`
-  display: flex;
-  flex-direction: column;
-
-  width: 21.2rem;
-  height: 13.2rem;
-  margin-top: 7.7rem;
-
-  border-radius: 5px;
-  background-color: ${theme.color.cardBlack};
-`;
-const cardContainer = css`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  width: 100%;
-  padding: 0.8rem;
-`;
-const cardFrame = css`
-  width: 5rem;
-  height: 3rem;
-
-  border-radius: 5px;
-  background-color: ${theme.color.gold};
-`;
-const cardType = css`
-  width: 5rem;
-  height: 3rem;
-`;
-const cardContentContainer = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 0.8rem;
-`;
-const cardContent = css`
-  display: flex;
-  align-items: center;
-
-  margin-left: 1.7rem;
-  gap: 10px;
-`;
-const cardContentText = css`
-  color: ${theme.color.white};
-  ${theme.font.card.number}
-`;
-const CARD_NUMBER = {
-  maxLength: 4
-};
-const CARD_EXPIRATION = {
-  minMonth: 1,
-  maxMonth: 12,
-  minYear: 25,
-  monthLength: 2,
-  yearLength: 2
-};
-const CARD_CVC = {
-  maxLength: 3
-};
-const CARD_TYPE = {
-  visa: {
-    startsWith: "4"
-  },
-  masterCard: {
-    startsWith: ["51", "52", "53", "54", "55"]
-  }
-};
-const CARD_NUMBER_ERROR = {
-  onlyNumbers: "숫자만 입력 가능합니다."
-};
-const CARD_EXPIRATION_ERROR = {
-  onlyNumbers: "숫자만 입력 가능합니다.",
-  invalidMonth: `${CARD_EXPIRATION.minMonth}~${CARD_EXPIRATION.maxMonth} 사이의 값을 입력해 주세요.`,
-  invalidYear: `${CARD_EXPIRATION.minYear}년 이상의 값을 입력해 주세요.`
-};
-const CARD_CVC_ERROR = {
-  onlyNumbers: "숫자만 입력 가능합니다."
-};
-function Card({ cardNumber, cardExpirationDate }) {
-  const { first, second, third, forth } = cardNumber;
-  const firstString = first == null ? void 0 : first.toString();
-  const masterCardType = firstString && CARD_TYPE.masterCard.startsWith.some(
-    (prefix2) => firstString.startsWith(prefix2)
-  );
-  const visaCardType = firstString && firstString.startsWith(CARD_TYPE.visa.startsWith);
-  const checkCardType = () => {
-    if (masterCardType) {
-      return MasterCard;
-    } else if (visaCardType) {
-      return Visa;
-    }
-  };
-  const hasFilledExpirationField = Boolean(cardExpirationDate.month || cardExpirationDate.year);
-  return /* @__PURE__ */ jsxs("section", { css: cardLayout, children: [
-    /* @__PURE__ */ jsxs("div", { css: cardContainer, children: [
-      /* @__PURE__ */ jsx$1("div", { css: cardFrame }),
-      checkCardType() && /* @__PURE__ */ jsx$1("div", { children: /* @__PURE__ */ jsx$1("img", { css: cardType, src: checkCardType() ?? "", alt: "카드 타입" }) })
-    ] }),
-    /* @__PURE__ */ jsxs("div", { css: cardContentContainer, children: [
-      /* @__PURE__ */ jsxs("div", { css: cardContent, children: [
-        /* @__PURE__ */ jsx$1("span", { css: cardContentText, children: first }),
-        /* @__PURE__ */ jsx$1("span", { css: cardContentText, children: second }),
-        /* @__PURE__ */ jsx$1("span", { css: cardContentText, children: third }),
-        /* @__PURE__ */ jsx$1("span", { css: cardContentText, children: forth })
-      ] }),
-      /* @__PURE__ */ jsx$1("div", { css: cardContent, children: hasFilledExpirationField && /* @__PURE__ */ jsxs("span", { css: cardContentText, children: [
-        cardExpirationDate.month,
-        "/",
-        cardExpirationDate.year
-      ] }) })
-    ] })
-  ] });
-}
-const inputContainer$1 = css`
-  display: flex;
-  height: 3.2rem;
-  padding: 0.8rem;
-  align-items: center;
-  gap: 0.8rem;
-
-  flex: 1 0 0;
-  width: 100%;
-
-  border-radius: 2px;
-  border: 1.015px solid var(--Stroke, #acacac);
-`;
-const inputLabel = css`
-  ${theme.font.input.label}
-  color: ${theme.color.text};
-`;
-const defaultContextValue = {
-  id: ""
-};
-const InputContext = reactExports.createContext(defaultContextValue);
-const useInputContext = () => reactExports.useContext(InputContext);
-const InputGroup = ({ id: providedId, children }) => {
-  const generatedId = reactExports.useId();
-  const id = providedId || generatedId;
-  return /* @__PURE__ */ jsx$1(InputContext.Provider, { value: { id }, children });
-};
-function Label(props) {
-  const { children, htmlFor: explicitHtmlFor, ...rest } = props;
-  const { id: contextId } = useInputContext();
-  const htmlFor = explicitHtmlFor || contextId;
-  return /* @__PURE__ */ jsx$1("label", { css: inputLabel, htmlFor, ...rest, children });
-}
-function Input(props) {
-  const { id: explicitId, ...rest } = props;
-  const { id: contextId } = useInputContext();
-  const id = explicitId || contextId;
-  return /* @__PURE__ */ jsx$1("input", { css: inputContainer$1, id, ...rest });
-}
-Input.Group = InputGroup;
-Input.Label = Label;
-const sectionTitle = css`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.4rem;
-`;
-const sectionTitleText = css`
-  color: ${theme.color.black};
-  ${theme.font.cardNumberInput.title}
-`;
-const sectionTitleSubText = css`
-  color: ${theme.color.gray};
-  ${theme.font.cardNumberInput.caption}
-`;
-const errorMessageStyle = css`
-  color: ${theme.color.red};
-  ${theme.font.cardNumberInput.caption};
-`;
-const errorInputStyle = css`
-  border: 1px solid ${theme.color.red};
-`;
-const cardNumberInputLayout = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-
-  width: 100%;
-  padding: 3.1rem;
-  margin-top: 4.5rem;
-  gap: 1.6rem;
-`;
-const inputContainer = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 0.8rem;
-  width: 100%;
-`;
-const inputSection = css`
-  display: flex;
-  flex-direction: row;
-  gap: 0.8rem;
-  width: 100%;
-`;
-function CardNumberInput({
-  cardNumber,
-  onChange,
-  errorState,
-  getCardNumberErrorMessage
-}) {
-  var _a, _b, _c, _d;
-  const getErrorMessage = () => {
-    if (getCardNumberErrorMessage) {
-      return getCardNumberErrorMessage() || CARD_NUMBER_ERROR.onlyNumbers;
-    }
-    return CARD_NUMBER_ERROR.onlyNumbers;
-  };
-  return /* @__PURE__ */ jsxs("div", { css: cardNumberInputLayout, children: [
-    /* @__PURE__ */ jsxs("div", { css: sectionTitle, children: [
-      /* @__PURE__ */ jsx$1("span", { css: sectionTitleText, children: "결제할 카드 번호를 입력해 주세요" }),
-      /* @__PURE__ */ jsx$1("span", { css: sectionTitleSubText, children: "본인 명의의 카드만 결제 가능합니다." })
-    ] }),
-    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
-      /* @__PURE__ */ jsx$1(Input.Label, { children: "카드 번호" }),
-      /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
-        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsx$1(
-          Input,
-          {
-            type: "text",
-            name: "first",
-            maxLength: CARD_NUMBER.maxLength,
-            value: (_a = cardNumber.first) == null ? void 0 : _a.toString(),
-            onChange,
-            css: errorState.first ? errorInputStyle : void 0
-          }
-        ) }),
-        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-second", children: /* @__PURE__ */ jsx$1(
-          Input,
-          {
-            type: "text",
-            name: "second",
-            maxLength: CARD_NUMBER.maxLength,
-            value: (_b = cardNumber.second) == null ? void 0 : _b.toString(),
-            onChange,
-            css: errorState.second ? errorInputStyle : void 0
-          }
-        ) }),
-        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-third", children: /* @__PURE__ */ jsx$1(
-          Input,
-          {
-            type: "text",
-            name: "third",
-            maxLength: CARD_NUMBER.maxLength,
-            value: (_c = cardNumber.third) == null ? void 0 : _c.toString(),
-            onChange,
-            css: errorState.third ? errorInputStyle : void 0
-          }
-        ) }),
-        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-forth", children: /* @__PURE__ */ jsx$1(
-          Input,
-          {
-            type: "text",
-            name: "forth",
-            maxLength: CARD_NUMBER.maxLength,
-            value: (_d = cardNumber.forth) == null ? void 0 : _d.toString(),
-            onChange,
-            css: errorState.forth ? errorInputStyle : void 0
-          }
-        ) })
-      ] }),
-      Object.values(errorState).some(Boolean) && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getErrorMessage() })
-    ] }) })
-  ] });
-}
-const cardPeriodInputLayout = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-
-  width: 100%;
-  padding: 3.1rem;
-  gap: 1.6rem;
-`;
-function CardPeriodInput({
-  cardExpirationDate,
-  onChange,
-  errorState,
-  getMonthErrorMessage,
-  getYearErrorMessage
-}) {
-  const getMonthError = getMonthErrorMessage || (() => {
-    if (!errorState.month) return null;
-    const monthValue = Number(cardExpirationDate.month);
-    if (!cardExpirationDate.month || isNaN(monthValue)) {
-      return CARD_EXPIRATION_ERROR.onlyNumbers;
-    }
-    if (monthValue < CARD_EXPIRATION.minMonth || monthValue > CARD_EXPIRATION.maxMonth) {
-      return CARD_EXPIRATION_ERROR.invalidMonth;
-    }
-    return null;
-  });
-  const getYearError = getYearErrorMessage || (() => {
-    if (!errorState.year) return null;
-    const yearValue = Number(cardExpirationDate.year);
-    if (!cardExpirationDate.year || isNaN(yearValue)) {
-      return CARD_EXPIRATION_ERROR.onlyNumbers;
-    }
-    if (yearValue < CARD_EXPIRATION.minYear) {
-      return CARD_EXPIRATION_ERROR.invalidYear;
-    }
-    return null;
-  });
-  return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
-    /* @__PURE__ */ jsxs("div", { css: sectionTitle, children: [
-      /* @__PURE__ */ jsx$1("span", { css: sectionTitleText, children: "카드 유효기간을 입력해 주세요" }),
-      /* @__PURE__ */ jsx$1("span", { css: sectionTitleSubText, children: "월/년도(MMYY)를 순서대로 입력해 주세요." })
-    ] }),
-    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
-      /* @__PURE__ */ jsx$1(Input.Label, { children: "유효기간" }),
-      /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
-        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsx$1(
-          Input,
-          {
-            type: "text",
-            name: "month",
-            maxLength: CARD_EXPIRATION.monthLength,
-            value: cardExpirationDate.month,
-            onChange,
-            css: errorState.month ? errorInputStyle : void 0
-          }
-        ) }),
-        /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration-year", children: /* @__PURE__ */ jsx$1(
-          Input,
-          {
-            type: "text",
-            name: "year",
-            maxLength: CARD_EXPIRATION.yearLength,
-            value: cardExpirationDate.year,
-            onChange,
-            css: errorState.year ? errorInputStyle : void 0
-          }
-        ) })
-      ] }),
-      errorState.month && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getMonthError() }),
-      errorState.year && !errorState.month && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getYearError() })
-    ] }) })
-  ] });
-}
-function CardCVCInput({
-  cardCVC,
-  onChange,
-  hasError,
-  getCardCVCErrorMessage
-}) {
-  const getErrorMessage = () => {
-    if (getCardCVCErrorMessage) {
-      return getCardCVCErrorMessage() || CARD_CVC_ERROR.onlyNumbers;
-    }
-    return CARD_CVC_ERROR.onlyNumbers;
-  };
-  return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
-    /* @__PURE__ */ jsx$1("div", { css: sectionTitle, children: /* @__PURE__ */ jsx$1("span", { css: sectionTitleText, children: "CVC 번호를 입력해 주세요" }) }),
-    /* @__PURE__ */ jsx$1(Input.Group, { id: "card-cvc", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
-      /* @__PURE__ */ jsx$1(Input.Label, { children: "CVC" }),
-      /* @__PURE__ */ jsx$1("article", { css: inputSection, children: /* @__PURE__ */ jsx$1(
-        Input,
-        {
-          type: "text",
-          name: "cvc",
-          maxLength: CARD_CVC.maxLength,
-          value: cardCVC == null ? void 0 : cardCVC.toString(),
-          onChange,
-          css: hasError ? errorInputStyle : void 0
-        }
-      ) }),
-      hasError && /* @__PURE__ */ jsx$1("div", { css: errorMessageStyle, children: getErrorMessage() })
-    ] }) })
-  ] });
-}
-const appLayout = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`;
-const mainLayout = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 1.6rem;
-`;
-const isOnlyDigits = (value) => /^\d*$/.test(value);
-const areAllValuesNotNull = (obj) => {
-  return Object.values(obj).every((value) => value !== null);
-};
-const areAllValuesFalse = (obj) => {
-  return Object.values(obj).every((value) => !value);
-};
-const useCardNumber = () => {
-  const [cardNumber, setCardNumber] = reactExports.useState({
-    first: null,
-    second: null,
-    third: null,
-    forth: null
-  });
-  const [cardNumberError, setCardNumberError] = reactExports.useState({
-    first: false,
-    second: false,
-    third: false,
-    forth: false
-  });
-  const handleCardNumberChange = (e) => {
-    const { name, value } = e.target;
-    const isNumber = isOnlyDigits(value);
-    if (isNumber) {
-      setCardNumber({
-        ...cardNumber,
-        [name]: value === "" ? null : Number(value)
-      });
-      setCardNumberError({
-        ...cardNumberError,
-        [name]: false
-      });
-    } else {
-      setCardNumberError({
-        ...cardNumberError,
-        [name]: true
-      });
-    }
-  };
-  const resetCardNumber = () => {
-    setCardNumber({
-      first: null,
-      second: null,
-      third: null,
-      forth: null
-    });
-    setCardNumberError({
-      first: false,
-      second: false,
-      third: false,
-      forth: false
-    });
-  };
-  const isCardNumberValid = () => {
-    return areAllValuesNotNull(cardNumber) && areAllValuesFalse(cardNumberError);
-  };
-  const getCardNumberErrorMessage = () => {
-    return areAllValuesFalse(cardNumberError) ? null : CARD_NUMBER_ERROR.onlyNumbers;
-  };
-  return {
-    cardNumber,
-    cardNumberError,
-    handleCardNumberChange,
-    resetCardNumber,
-    isCardNumberValid,
-    getCardNumberErrorMessage
-  };
-};
-const useCardExpiration = () => {
-  const [cardExpirationDate, setCardExpirationDate] = reactExports.useState({
-    month: "",
-    year: ""
-  });
-  const [cardExpirationDateError, setCardExpirationDateError] = reactExports.useState({
-    month: false,
-    year: false
-  });
-  const handleCardExpirationChange = (e) => {
-    const { name, value } = e.target;
-    const isNumber = isOnlyDigits(value);
-    if (isNumber) {
-      if (name === "month" && value.length > 0) {
-        const monthValue = Number(value);
-        if (monthValue < CARD_EXPIRATION.minMonth || monthValue > CARD_EXPIRATION.maxMonth) {
-          setCardExpirationDateError({
-            ...cardExpirationDateError,
-            month: true
-          });
-          setCardExpirationDate({
-            ...cardExpirationDate,
-            month: value
-          });
-          return;
-        }
-      } else if (name === "year" && value.length > 0) {
-        const yearValue = Number(value);
-        if (yearValue < CARD_EXPIRATION.minYear) {
-          setCardExpirationDateError({
-            ...cardExpirationDateError,
-            year: true
-          });
-          setCardExpirationDate({
-            ...cardExpirationDate,
-            year: value
-          });
-          return;
-        }
-      }
-      setCardExpirationDate({
-        ...cardExpirationDate,
-        [name]: value
-      });
-      setCardExpirationDateError({
-        ...cardExpirationDateError,
-        [name]: false
-      });
-    } else {
-      setCardExpirationDateError({
-        ...cardExpirationDateError,
-        [name]: true
-      });
-    }
-  };
-  const resetCardExpiration = () => {
-    setCardExpirationDate({
-      month: "",
-      year: ""
-    });
-    setCardExpirationDateError({
-      month: false,
-      year: false
-    });
-  };
-  const isCardExpirationValid = () => {
-    const { month, year } = cardExpirationDate;
-    const monthValue = Number(month);
-    const yearValue = Number(year);
-    return month.length === CARD_EXPIRATION.monthLength && year.length === CARD_EXPIRATION.yearLength && monthValue >= CARD_EXPIRATION.minMonth && monthValue <= CARD_EXPIRATION.maxMonth && yearValue >= CARD_EXPIRATION.minYear && !cardExpirationDateError.month && !cardExpirationDateError.year;
-  };
-  const getMonthErrorMessage = () => {
-    if (!cardExpirationDateError.month) return null;
-    const monthValue = Number(cardExpirationDate.month);
-    if (!cardExpirationDate.month || isNaN(monthValue)) {
-      return CARD_EXPIRATION_ERROR.onlyNumbers;
-    }
-    if (monthValue < CARD_EXPIRATION.minMonth || monthValue > CARD_EXPIRATION.maxMonth) {
-      return CARD_EXPIRATION_ERROR.invalidMonth;
-    }
-    return null;
-  };
-  const getYearErrorMessage = () => {
-    if (!cardExpirationDateError.year) return null;
-    const yearValue = Number(cardExpirationDate.year);
-    if (!cardExpirationDate.year || isNaN(yearValue)) {
-      return CARD_EXPIRATION_ERROR.onlyNumbers;
-    }
-    if (yearValue < CARD_EXPIRATION.minYear) {
-      return CARD_EXPIRATION_ERROR.invalidYear;
-    }
-    return null;
-  };
-  return {
-    cardExpirationDate,
-    cardExpirationDateError,
-    handleCardExpirationChange,
-    resetCardExpiration,
-    isCardExpirationValid,
-    getMonthErrorMessage,
-    getYearErrorMessage
-  };
-};
-const useCardCVC = () => {
-  const [cardCVC, setCardCVC] = reactExports.useState(null);
-  const [cardCVCError, setCardCVCError] = reactExports.useState(false);
-  const handleCardCVCChange = (e) => {
-    const { value } = e.target;
-    const isNumber = isOnlyDigits(value);
-    if (isNumber) {
-      setCardCVC(value === "" ? null : Number(value));
-      setCardCVCError(false);
-    } else {
-      setCardCVCError(true);
-    }
-  };
-  const resetCardCVC = () => {
-    setCardCVC(null);
-    setCardCVCError(false);
-  };
-  const isCardCVCValid = () => {
-    return cardCVC !== null && cardCVC.toString().length === CARD_CVC.maxLength && !cardCVCError;
-  };
-  const getCardCVCErrorMessage = () => {
-    if (!cardCVCError) return null;
-    return CARD_CVC_ERROR.onlyNumbers;
-  };
-  return {
-    cardCVC,
-    cardCVCError,
-    handleCardCVCChange,
-    resetCardCVC,
-    isCardCVCValid,
-    getCardCVCErrorMessage
-  };
-};
 function App() {
-  const {
-    cardNumber,
-    cardNumberError,
-    handleCardNumberChange,
-    getCardNumberErrorMessage
-  } = useCardNumber();
-  const {
-    cardExpirationDate,
-    cardExpirationDateError,
-    handleCardExpirationChange,
-    getMonthErrorMessage,
-    getYearErrorMessage
-  } = useCardExpiration();
-  const { cardCVC, cardCVCError, handleCardCVCChange, getCardCVCErrorMessage } = useCardCVC();
   return /* @__PURE__ */ jsxs(ThemeProvider, { theme, children: [
     /* @__PURE__ */ jsx$1(Global, { styles: GlobalStyle }),
-    /* @__PURE__ */ jsxs("div", { css: appLayout, children: [
-      /* @__PURE__ */ jsx$1(Card, { cardNumber, cardExpirationDate }),
-      /* @__PURE__ */ jsxs("main", { css: mainLayout, children: [
-        /* @__PURE__ */ jsx$1(
-          CardNumberInput,
-          {
-            cardNumber,
-            onChange: handleCardNumberChange,
-            errorState: cardNumberError,
-            getCardNumberErrorMessage
-          }
-        ),
-        /* @__PURE__ */ jsx$1(
-          CardPeriodInput,
-          {
-            cardExpirationDate,
-            onChange: handleCardExpirationChange,
-            errorState: cardExpirationDateError,
-            getMonthErrorMessage,
-            getYearErrorMessage
-          }
-        ),
-        /* @__PURE__ */ jsx$1(
-          CardCVCInput,
-          {
-            cardCVC,
-            onChange: handleCardCVCChange,
-            hasError: cardCVCError,
-            getCardCVCErrorMessage
-          }
-        )
-      ] })
-    ] })
+    /* @__PURE__ */ jsx$1("div", { css: appLayout, children: /* @__PURE__ */ jsx$1(Router, {}) })
   ] });
 }
 ReactDOM.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsx$1(React.StrictMode, { children: /* @__PURE__ */ jsx$1(App, {}) })
+  /* @__PURE__ */ jsx$1(React.StrictMode, { children: /* @__PURE__ */ jsx$1(BrowserRouter, { children: /* @__PURE__ */ jsx$1(App, {}) }) })
 );
