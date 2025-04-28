@@ -15746,9 +15746,9 @@ new TextEncoder();
   ...NO_BODY_STATUS_CODES,
   304
 ]);
-const MasterCard = "./image/Mastercard.png";
-const Visa = "./image/Visa.png";
-const Complete = "./image/Complete.png";
+const MasterCard = "image/Mastercard.png";
+const Visa = "image/Visa.png";
+const Complete = "image/Complete.png";
 var jsx2 = function jsx3(type, props) {
   var args = arguments;
   if (props == null || !hasOwn.call(props, "css")) {
