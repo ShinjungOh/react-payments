@@ -15748,7 +15748,6 @@ new TextEncoder();
 ]);
 const MasterCard = "image/Mastercard.png";
 const Visa = "image/Visa.png";
-const Complete = "image/Complete.png";
 var jsx2 = function jsx3(type, props) {
   var args = arguments;
   if (props == null || !hasOwn.call(props, "css")) {
@@ -17006,7 +17005,7 @@ function CardRegistrationCompletePage() {
     return /* @__PURE__ */ jsx$1(Navigate, { to: "/", replace: true });
   }
   return /* @__PURE__ */ jsxs("div", { css: pageContainer, children: [
-    /* @__PURE__ */ jsx$1("img", { src: Complete, alt: "완료", css: completeImage }),
+    /* @__PURE__ */ jsx$1("img", { src: "image/Complete.png", alt: "완료", css: completeImage }),
     /* @__PURE__ */ jsxs("h1", { css: title, children: [
       cardNumber.first,
       "로 시작하는",
