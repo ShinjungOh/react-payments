@@ -15746,8 +15746,6 @@ new TextEncoder();
   ...NO_BODY_STATUS_CODES,
   304
 ]);
-const MasterCard = "image/Mastercard.png";
-const Visa = "image/Visa.png";
 var jsx2 = function jsx3(type, props) {
   var args = arguments;
   if (props == null || !hasOwn.call(props, "css")) {
@@ -15877,6 +15875,23 @@ const theme = {
     }
   }
 };
+function Dot({ value, css: customCss, color = "black" }) {
+  const length2 = (value == null ? void 0 : value.toString().length) || 0;
+  const masked = "*".repeat(length2);
+  const colorStyle = color === "white" ? dotWhite : dotBlack;
+  return /* @__PURE__ */ jsx$1("span", { css: [dotStyle, colorStyle, customCss], children: masked });
+}
+const dotStyle = css`
+  ${theme.font.card.number};
+`;
+const dotWhite = css`
+  color: ${theme.color.white};
+`;
+const dotBlack = css`
+  color: ${theme.color.black};
+`;
+const MasterCard = "image/Mastercard.png";
+const Visa = "image/Visa.png";
 const cardLayout$1 = css`
   display: flex;
   flex-direction: column;
@@ -15978,15 +15993,6 @@ const CARD_PASSWORD_ERROR = {
   onlyNumbers: "숫자만 입력 가능합니다.",
   invalidLength: "비밀번호는 2자리 숫자여야 합니다."
 };
-function Dot({ value, css: customCss, className }) {
-  const length2 = (value == null ? void 0 : value.toString().length) || 0;
-  const masked = "*".repeat(length2);
-  return /* @__PURE__ */ jsx$1("span", { css: [dotStyle, customCss, className], children: masked });
-}
-const dotStyle = css`
-  color: ${theme.color.white};
-  ${theme.font.card.number};
-`;
 function Card({ cardNumber, cardExpirationDate, brand }) {
   const theme2 = useTheme();
   const { first, second, third, forth } = cardNumber;
@@ -16003,6 +16009,7 @@ function Card({ cardNumber, cardExpirationDate, brand }) {
     }
   };
   const hasFilledExpirationField = Boolean(cardExpirationDate.month || cardExpirationDate.year);
+  const dotStyle2 = brand === "카카오뱅크" ? "black" : "white";
   const fontColor = brand === "카카오뱅크" ? css`color: ${theme2.color.black};` : void 0;
   const brandBackground = brand ? css`background-color: ${theme2.color.cardBrand[brand]};` : void 0;
   return /* @__PURE__ */ jsx$1("section", { css: cardLayout$1, children: /* @__PURE__ */ jsxs("div", { css: [cardSection, brandBackground], children: [
@@ -16014,8 +16021,8 @@ function Card({ cardNumber, cardExpirationDate, brand }) {
       /* @__PURE__ */ jsxs("div", { css: cardContent, children: [
         /* @__PURE__ */ jsx$1("span", { css: [cardContentText, fontColor], children: first }),
         /* @__PURE__ */ jsx$1("span", { css: [cardContentText, fontColor], children: second }),
-        /* @__PURE__ */ jsx$1(Dot, { value: third, className: [cardContentText, fontColor] }),
-        /* @__PURE__ */ jsx$1(Dot, { value: forth, className: [cardContentText, fontColor] })
+        /* @__PURE__ */ jsx$1(Dot, { value: third, css: fontColor, color: dotStyle2 }),
+        /* @__PURE__ */ jsx$1(Dot, { value: forth, css: fontColor, color: dotStyle2 })
       ] }),
       /* @__PURE__ */ jsx$1("div", { css: cardContent, children: hasFilledExpirationField && /* @__PURE__ */ jsxs("span", { css: [cardContentText, fontColor], children: [
         cardExpirationDate.month,
@@ -16085,12 +16092,13 @@ function Label(props) {
   const htmlFor = explicitHtmlFor || contextId;
   return /* @__PURE__ */ jsx$1("label", { css: inputLabel, htmlFor, ...rest, children });
 }
-function Input(props) {
+const Input = reactExports.forwardRef((props, ref) => {
   const { id: explicitId, ...rest } = props;
   const { id: contextId } = useInputContext();
   const id = explicitId || contextId;
-  return /* @__PURE__ */ jsx$1("input", { css: inputContainer$1, id, ...rest });
-}
+  return /* @__PURE__ */ jsx$1("input", { css: inputContainer$1, id, ref, ...rest });
+});
+Input.displayName = "Input";
 Input.Group = InputGroup;
 Input.Label = Label;
 const inputContainer = css`
@@ -16138,7 +16146,7 @@ function CardPasswordInput({ cardPassword, error, onChange, passwordRef, tabInde
           type: "password",
           name: "password",
           maxLength: CARD_PASSWORD.maxLength,
-          value: cardPassword == null ? void 0 : cardPassword.toString(),
+          value: cardPassword,
           onChange,
           css: error ? errorInputStyle : void 0,
           tabIndex
@@ -16175,7 +16183,7 @@ function CardCVCInput({
           type: "text",
           name: "cvc",
           maxLength: CARD_CVC.maxLength,
-          value: cardCVC == null ? void 0 : cardCVC.toString(),
+          value: cardCVC,
           onChange,
           css: error ? errorInputStyle : void 0,
           tabIndex
@@ -16248,43 +16256,40 @@ const DropdownContainer = css`
   border-radius: 2px;
   border: 1.015px solid var(--Stroke, #acacac);
 `;
-function Dropdown({ options, value, onChange }) {
-  return /* @__PURE__ */ jsx$1(
-    "select",
-    {
-      css: DropdownContainer,
-      name: "card-brand",
-      id: "card-brand-select",
-      value,
-      onChange,
-      children: options.map((option) => {
-        return /* @__PURE__ */ jsx$1("option", { value: option, children: option }, option);
-      })
-    }
-  );
-}
-var CardBrands = /* @__PURE__ */ ((CardBrands2) => {
-  CardBrands2["BC카드"] = "BC카드";
-  CardBrands2["신한카드"] = "신한카드";
-  CardBrands2["카카오뱅크"] = "카카오뱅크";
-  CardBrands2["현대카드"] = "현대카드";
-  CardBrands2["우리카드"] = "우리카드";
-  CardBrands2["롯데카드"] = "롯데카드";
-  CardBrands2["하나카드"] = "하나카드";
-  CardBrands2["국민카드"] = "국민카드";
-  return CardBrands2;
-})(CardBrands || {});
-const cardBrandOptions = Object.values(CardBrands);
-function CardBrand({ value, onChange, brandRef, tabIndex }) {
+const Dropdown = reactExports.forwardRef(
+  ({ options, value, onChange, tabIndex, placeholder }, ref) => {
+    return /* @__PURE__ */ jsxs(
+      "select",
+      {
+        ref,
+        css: DropdownContainer,
+        name: "card-brand",
+        id: "card-brand-select",
+        value,
+        onChange,
+        tabIndex,
+        children: [
+          placeholder && /* @__PURE__ */ jsx$1("option", { value: "", disabled: value !== "", children: placeholder }),
+          options.map((option) => {
+            return /* @__PURE__ */ jsx$1("option", { value: option, children: option }, option);
+          })
+        ]
+      }
+    );
+  }
+);
+Dropdown.displayName = "Dropdown";
+function CardBrand({ value, onChange, brandRef, options, placeholder, tabIndex }) {
   return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
     /* @__PURE__ */ jsx$1(Title, { title: "카드사를 선택해 주세요", subTitle: "현재 국내 카드사만 가능합니다." }),
     /* @__PURE__ */ jsx$1(
       Dropdown,
       {
         ref: brandRef,
-        options: cardBrandOptions,
+        options,
         value: value ?? "",
         onChange,
+        placeholder,
         tabIndex
       }
     )
@@ -16306,10 +16311,10 @@ function CardNumberInput({
   inputRefs,
   onChange,
   onKeyDown,
+  onBlur,
   tabIndex,
   autoFocus
 }) {
-  var _a, _b, _c, _d;
   const errorMessage = error.first || error.second || error.third || error.forth;
   return /* @__PURE__ */ jsxs("div", { css: cardNumberInputLayout, children: [
     /* @__PURE__ */ jsx$1(Title, { title: "결제할 카드 번호를 입력해 주세요", subTitle: "본인 명의의 카드만 결제 가능합니다." }),
@@ -16323,9 +16328,10 @@ function CardNumberInput({
             type: "text",
             name: "first",
             maxLength: CARD_NUMBER.maxLength,
-            value: (_a = cardNumber.first) == null ? void 0 : _a.toString(),
+            value: cardNumber.first,
             onChange,
             onKeyDown,
+            onBlur,
             css: error.first ? errorInputStyle : void 0,
             tabIndex: tabIndex ? tabIndex + 1 : void 0,
             autoFocus
@@ -16338,9 +16344,10 @@ function CardNumberInput({
             type: "text",
             name: "second",
             maxLength: CARD_NUMBER.maxLength,
-            value: (_b = cardNumber.second) == null ? void 0 : _b.toString(),
+            value: cardNumber.second,
             onChange,
             onKeyDown,
+            onBlur,
             css: error.second ? errorInputStyle : void 0,
             tabIndex: tabIndex ? tabIndex + 2 : void 0
           }
@@ -16352,9 +16359,10 @@ function CardNumberInput({
             type: "text",
             name: "third",
             maxLength: CARD_NUMBER.maxLength,
-            value: (_c = cardNumber.third) == null ? void 0 : _c.toString(),
+            value: cardNumber.third,
             onChange,
             onKeyDown,
+            onBlur,
             css: error.third ? errorInputStyle : void 0,
             tabIndex: tabIndex ? tabIndex + 3 : void 0
           }
@@ -16366,9 +16374,10 @@ function CardNumberInput({
             type: "text",
             name: "forth",
             maxLength: CARD_NUMBER.maxLength,
-            value: (_d = cardNumber.forth) == null ? void 0 : _d.toString(),
+            value: cardNumber.forth,
             onChange,
             onKeyDown,
+            onBlur,
             css: error.forth ? errorInputStyle : void 0,
             tabIndex: tabIndex ? tabIndex + 4 : void 0
           }
@@ -16552,6 +16561,18 @@ const useCardNumber = (onComplete) => {
     isValid: isCardNumberValid()
   };
 };
+var CardBrands = /* @__PURE__ */ ((CardBrands2) => {
+  CardBrands2["BC카드"] = "BC카드";
+  CardBrands2["신한카드"] = "신한카드";
+  CardBrands2["카카오뱅크"] = "카카오뱅크";
+  CardBrands2["현대카드"] = "현대카드";
+  CardBrands2["우리카드"] = "우리카드";
+  CardBrands2["롯데카드"] = "롯데카드";
+  CardBrands2["하나카드"] = "하나카드";
+  CardBrands2["국민카드"] = "국민카드";
+  return CardBrands2;
+})(CardBrands || {});
+const cardBrandOptions = Object.values(CardBrands);
 const useCardBrand = (onComplete) => {
   const [brand, setBrand] = reactExports.useState(null);
   const brandRef = reactExports.useRef(null);
@@ -16572,6 +16593,7 @@ const useCardBrand = (onComplete) => {
     brand,
     brandRef,
     onChange,
+    options: cardBrandOptions,
     resetBrand,
     isBrandSelected,
     isValid: isBrandSelected()
@@ -16860,11 +16882,12 @@ function HomePage() {
     setTimeout(() => {
       var _a;
       return (_a = brandRef.current) == null ? void 0 : _a.focus();
-    }, 1);
+    }, 100);
   });
   const {
     brand,
     brandRef,
+    options,
     onChange,
     isValid: isCardBrandValid
   } = useCardBrand(() => {
@@ -16908,7 +16931,6 @@ function HomePage() {
     cardPasswordError,
     passwordRef,
     handleCardPasswordChange,
-    getCardPasswordErrorMessage,
     isValid: isCardPasswordValid
   } = useCardPassword();
   const showConfirmButton = isCardNumberValid && isCardBrandValid && isCardExpirationValid && isCardCVCValid && isCardPasswordValid;
@@ -16919,9 +16941,9 @@ function HomePage() {
         CardPasswordInput,
         {
           cardPassword,
-          erorr: cardPasswordError,
+          error: cardPasswordError,
+          passwordRef,
           onChange: handleCardPasswordChange,
-          getCardPasswordErrorMessage,
           tabIndex: 9
         }
       ),
@@ -16954,8 +16976,8 @@ function HomePage() {
         {
           value: brand,
           onChange,
+          options,
           brandRef,
-          error: cardNumberError,
           tabIndex: 5
         }
       ),
