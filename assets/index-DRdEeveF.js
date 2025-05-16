@@ -15882,7 +15882,6 @@ const dotBlack = css`
 `;
 const MasterCard = "image/Mastercard.png";
 const Visa = "image/Visa.png";
-const Complete = "image/Complete.png";
 const cardLayout$1 = css`
   display: flex;
   flex-direction: column;
@@ -16984,26 +16983,46 @@ function HomePage() {
   ] });
 }
 const pageContainer = css`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-  width: 100%;
-  height: 100%;
-  padding: 0 3.1rem 0 3.1rem;
+    width: 100%;
+    height: 100%;
+    padding: 0 3.1rem 0 3.1rem;
 `;
 const completeImage = css`
-  width: 76px;
-  height: 76px;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background-color: #353c49;
+    position: relative;
+
+    &::after {
+        content: "";
+        position: absolute;
+
+        width: 28px;
+        height: 16px;
+
+        border-left: 6px solid #fff;
+        border-bottom: 6px solid #fff;
+        border-radius: 3px;
+
+        top: calc(50% - 14px);
+        left: calc(50% - 16px);
+
+        transform: rotate(-45deg);
+    }
 `;
 const title = css`
-  margin: 25px 0 25px 0;
-  font-weight: 700;
-  font-size: 25px;
-  line-height: 1.5;
-  text-align: center;
-  color: #353C49;
+    margin: 25px 0 25px 0;
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 1.5;
+    text-align: center;
+    color: #353C49;
 `;
 const PATHS = {
   HOME: "/*",
@@ -17020,7 +17039,7 @@ function CardRegistrationCompletePage() {
     navigate(PATHS.HOME, { replace: true });
   };
   return /* @__PURE__ */ jsxs("div", { css: pageContainer, children: [
-    /* @__PURE__ */ jsx$1("img", { src: Complete, alt: "완료", css: completeImage }),
+    /* @__PURE__ */ jsx$1("div", { css: completeImage }),
     /* @__PURE__ */ jsxs("h1", { css: title, children: [
       cardNumber.first,
       "로 시작하는",
