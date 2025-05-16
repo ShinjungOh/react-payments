@@ -16220,7 +16220,7 @@ function CardPeriodInput({
             onChange,
             onKeyDown,
             css: error.month ? errorInputStyle : void 0,
-            tabIndex: tabIndex ? tabIndex + 1 : void 0,
+            tabIndex,
             autoFocus
           }
         ) }),
@@ -16235,7 +16235,7 @@ function CardPeriodInput({
             onChange,
             onKeyDown,
             css: error.year ? errorInputStyle : void 0,
-            tabIndex: tabIndex ? tabIndex + 2 : void 0
+            tabIndex: tabIndex ? tabIndex + 1 : void 0
           }
         ) })
       ] }),
@@ -16333,7 +16333,7 @@ function CardNumberInput({
             onKeyDown,
             onBlur,
             css: error.first ? errorInputStyle : void 0,
-            tabIndex: tabIndex ? tabIndex + 1 : void 0,
+            tabIndex,
             autoFocus
           }
         ) }),
@@ -16349,7 +16349,7 @@ function CardNumberInput({
             onKeyDown,
             onBlur,
             css: error.second ? errorInputStyle : void 0,
-            tabIndex: tabIndex ? tabIndex + 2 : void 0
+            tabIndex: tabIndex ? tabIndex + 1 : void 0
           }
         ) }),
         /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-third", children: /* @__PURE__ */ jsx$1(
@@ -16364,7 +16364,7 @@ function CardNumberInput({
             onKeyDown,
             onBlur,
             css: error.third ? errorInputStyle : void 0,
-            tabIndex: tabIndex ? tabIndex + 3 : void 0
+            tabIndex: tabIndex ? tabIndex + 2 : void 0
           }
         ) }),
         /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number-forth", children: /* @__PURE__ */ jsx$1(
@@ -16379,7 +16379,7 @@ function CardNumberInput({
             onKeyDown,
             onBlur,
             css: error.forth ? errorInputStyle : void 0,
-            tabIndex: tabIndex ? tabIndex + 4 : void 0
+            tabIndex: tabIndex ? tabIndex + 3 : void 0
           }
         ) })
       ] }),
