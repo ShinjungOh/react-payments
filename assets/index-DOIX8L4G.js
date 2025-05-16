@@ -17005,12 +17005,20 @@ const title = css`
   text-align: center;
   color: #353C49;
 `;
+const PATHS = {
+  HOME: "/*",
+  COMPLETE: "/complete"
+};
 function CardRegistrationCompletePage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { cardNumber, brand } = location.state || {};
   if (!cardNumber || !brand) {
-    return /* @__PURE__ */ jsx$1(Navigate, { to: "/*", replace: true });
+    return /* @__PURE__ */ jsx$1(Navigate, { to: PATHS.HOME, replace: true });
   }
+  const handleNavigateHome = () => {
+    navigate(PATHS.HOME, { replace: true });
+  };
   return /* @__PURE__ */ jsxs("div", { css: pageContainer, children: [
     /* @__PURE__ */ jsx$1("img", { src: Complete, alt: "완료", css: completeImage }),
     /* @__PURE__ */ jsxs("h1", { css: title, children: [
@@ -17025,15 +17033,11 @@ function CardRegistrationCompletePage() {
       {
         content: "확인",
         variant: "rounded",
-        onClick: () => window.location.href = "/"
+        onClick: handleNavigateHome
       }
     )
   ] });
 }
-const PATHS = {
-  HOME: "/*",
-  COMPLETE: "/complete"
-};
 const Router = () => /* @__PURE__ */ jsxs(Routes, { children: [
   /* @__PURE__ */ jsx$1(Route, { path: PATHS.HOME, element: /* @__PURE__ */ jsx$1(HomePage, {}) }),
   /* @__PURE__ */ jsx$1(Route, { path: PATHS.COMPLETE, element: /* @__PURE__ */ jsx$1(CardRegistrationCompletePage, {}) })
