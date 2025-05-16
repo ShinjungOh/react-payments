@@ -17009,7 +17009,7 @@ function CardRegistrationCompletePage() {
   const location = useLocation();
   const { cardNumber, brand } = location.state || {};
   if (!cardNumber || !brand) {
-    return /* @__PURE__ */ jsx$1(Navigate, { to: "/", replace: true });
+    return /* @__PURE__ */ jsx$1(Navigate, { to: "/*", replace: true });
   }
   return /* @__PURE__ */ jsxs("div", { css: pageContainer, children: [
     /* @__PURE__ */ jsx$1("img", { src: Complete, alt: "완료", css: completeImage }),
