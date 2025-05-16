@@ -15825,17 +15825,7 @@ const theme = {
     cardBlack: "#333333",
     gold: "#DDCD78",
     text: "#0A0D13",
-    red: "#FF3D3D",
-    cardBrand: {
-      BC카드: "#F04651",
-      신한카드: "#0046FF",
-      카카오뱅크: "#FFE600",
-      현대카드: "#000000",
-      우리카드: "#007BC8",
-      롯데카드: "#ED1C24",
-      하나카드: "#009490",
-      국민카드: "#6A6056"
-    }
+    red: "#FF3D3D"
   },
   font: {
     card: {
@@ -15892,6 +15882,7 @@ const dotBlack = css`
 `;
 const MasterCard = "image/Mastercard.png";
 const Visa = "image/Visa.png";
+const Complete = "image/Complete.png";
 const cardLayout$1 = css`
   display: flex;
   flex-direction: column;
@@ -15975,23 +15966,33 @@ const CARD_TYPE = {
     startsWith: ["51", "52", "53", "54", "55"]
   }
 };
+const CARD_BRAND_COLOR = {
+  BC카드: "#F04651",
+  신한카드: "#0046FF",
+  카카오뱅크: "#FFE600",
+  현대카드: "#000000",
+  우리카드: "#007BC8",
+  롯데카드: "#ED1C24",
+  하나카드: "#009490",
+  국민카드: "#6A6056"
+};
 const CARD_NUMBER_ERROR = {
   onlyNumbers: "숫자만 입력 가능합니다.",
   invalidFormat: "카드 번호 형식이 올바르지 않습니다."
 };
 const CARD_EXPIRATION_ERROR = {
   onlyNumbers: "숫자만 입력 가능합니다.",
-  invalidLength: "2자리 이상 입력해 주세요.",
+  invalidLength: `${CARD_EXPIRATION.maxLength}자리 이상 입력해 주세요.`,
   invalidMonth: `${CARD_EXPIRATION.minMonth}~${CARD_EXPIRATION.maxMonth} 사이의 값을 입력해 주세요.`,
   invalidYear: `${CARD_EXPIRATION.minYear}년 이상의 값을 입력해 주세요.`
 };
 const CARD_CVC_ERROR = {
   onlyNumbers: "숫자만 입력 가능합니다.",
-  invalidLength: "3자리 이상 입력해 주세요."
+  invalidLength: `${CARD_CVC.maxLength}자리 이상 입력해 주세요.`
 };
 const CARD_PASSWORD_ERROR = {
   onlyNumbers: "숫자만 입력 가능합니다.",
-  invalidLength: "비밀번호는 2자리 숫자여야 합니다."
+  invalidLength: `비밀번호는 ${CARD_PASSWORD.maxLength}자리 숫자여야 합니다.`
 };
 function Card({ cardNumber, cardExpirationDate, brand }) {
   const theme2 = useTheme();
@@ -16011,7 +16012,7 @@ function Card({ cardNumber, cardExpirationDate, brand }) {
   const hasFilledExpirationField = Boolean(cardExpirationDate.month || cardExpirationDate.year);
   const dotStyle2 = brand === "카카오뱅크" ? "black" : "white";
   const fontColor = brand === "카카오뱅크" ? css`color: ${theme2.color.black};` : void 0;
-  const brandBackground = brand ? css`background-color: ${theme2.color.cardBrand[brand]};` : void 0;
+  const brandBackground = brand ? css`background-color: ${CARD_BRAND_COLOR[brand]};` : void 0;
   return /* @__PURE__ */ jsx$1("section", { css: cardLayout$1, children: /* @__PURE__ */ jsxs("div", { css: [cardSection, brandBackground], children: [
     /* @__PURE__ */ jsxs("div", { css: cardContainer, children: [
       /* @__PURE__ */ jsx$1("div", { css: cardFrame }),
@@ -16139,7 +16140,7 @@ function CardPasswordInput({ cardPassword, error, onChange, passwordRef, tabInde
     /* @__PURE__ */ jsx$1(Title, { title: "비밀번호를 입력해 주세요", subTitle: "앞의 2자리를 입력해주세요" }),
     /* @__PURE__ */ jsx$1(Input.Group, { id: "password", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
       /* @__PURE__ */ jsx$1(Input.Label, { children: "비밀번호 앞 2자리" }),
-      /* @__PURE__ */ jsx$1("article", { css: inputSection, children: /* @__PURE__ */ jsx$1(
+      /* @__PURE__ */ jsx$1("fieldset", { css: inputSection, children: /* @__PURE__ */ jsx$1(
         Input,
         {
           ref: passwordRef,
@@ -16176,7 +16177,7 @@ function CardCVCInput({
     /* @__PURE__ */ jsx$1(Title, { title: "CVC 번호를 입력해 주세요" }),
     /* @__PURE__ */ jsx$1(Input.Group, { id: "card-cvc", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
       /* @__PURE__ */ jsx$1(Input.Label, { children: "CVC" }),
-      /* @__PURE__ */ jsx$1("article", { css: inputSection, children: /* @__PURE__ */ jsx$1(
+      /* @__PURE__ */ jsx$1("fieldset", { css: inputSection, children: /* @__PURE__ */ jsx$1(
         Input,
         {
           ref: cvcRef,
@@ -16208,7 +16209,7 @@ function CardPeriodInput({
     /* @__PURE__ */ jsx$1(Title, { title: "카드 유효기간을 입력해 주세요", subTitle: "월/년도(MMYY)를 순서대로 입력해 주세요." }),
     /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
       /* @__PURE__ */ jsx$1(Input.Label, { children: "유효기간" }),
-      /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
+      /* @__PURE__ */ jsxs("fieldset", { css: inputSection, children: [
         /* @__PURE__ */ jsx$1(Input.Group, { id: "card-expiration", children: /* @__PURE__ */ jsx$1(
           Input,
           {
@@ -16279,7 +16280,7 @@ const Dropdown = reactExports.forwardRef(
   }
 );
 Dropdown.displayName = "Dropdown";
-function CardBrand({ value, onChange, brandRef, options, placeholder, tabIndex }) {
+function CardBrandDropdown({ value, onChange, brandRef, options, tabIndex }) {
   return /* @__PURE__ */ jsxs("div", { css: cardPeriodInputLayout, children: [
     /* @__PURE__ */ jsx$1(Title, { title: "카드사를 선택해 주세요", subTitle: "현재 국내 카드사만 가능합니다." }),
     /* @__PURE__ */ jsx$1(
@@ -16289,7 +16290,7 @@ function CardBrand({ value, onChange, brandRef, options, placeholder, tabIndex }
         options,
         value: value ?? "",
         onChange,
-        placeholder,
+        placeholder: "카드사를 선택해 주세요",
         tabIndex
       }
     )
@@ -16320,7 +16321,7 @@ function CardNumberInput({
     /* @__PURE__ */ jsx$1(Title, { title: "결제할 카드 번호를 입력해 주세요", subTitle: "본인 명의의 카드만 결제 가능합니다." }),
     /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsxs("div", { css: inputContainer, children: [
       /* @__PURE__ */ jsx$1(Input.Label, { children: "카드 번호" }),
-      /* @__PURE__ */ jsxs("article", { css: inputSection, children: [
+      /* @__PURE__ */ jsxs("fieldset", { css: inputSection, children: [
         /* @__PURE__ */ jsx$1(Input.Group, { id: "card-number", children: /* @__PURE__ */ jsx$1(
           Input,
           {
@@ -16387,18 +16388,7 @@ function CardNumberInput({
     ] }) })
   ] });
 }
-const buttonContainer = css`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    position: relative;
-    width: 100%;
-    gap: 16px;
-    z-index: 100;
-`;
-const defaultButton = css`
+const roundedButton = css`
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -16413,7 +16403,7 @@ const defaultButton = css`
     height: 44px;
     border-radius: 5px;
 `;
-const bottomButton = css`
+const fullButton = css`
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -16427,9 +16417,9 @@ const bottomButton = css`
     width: 428px;
     height: 52px;
 `;
-function Button({ content, style }) {
-  const buttonStyle = style === "bottom" ? bottomButton : defaultButton;
-  return /* @__PURE__ */ jsx$1("div", { css: buttonContainer, children: /* @__PURE__ */ jsx$1("button", { css: buttonStyle, children: content }) });
+function Button({ content, variant, onClick }) {
+  const buttonStyle = variant === "full" ? fullButton : roundedButton;
+  return /* @__PURE__ */ jsx$1("button", { css: buttonStyle, onClick, children: content });
 }
 const isOnlyDigits = (value) => /^\d*$/.test(value);
 const initialCardNumber = {
@@ -16779,7 +16769,7 @@ const useCardPassword = (onComplete) => {
     setCardPasswordError("");
   };
   const isCardPasswordValid = () => {
-    return cardPassword !== null && cardPassword.toString().length === CARD_CVC.maxLength && !cardPasswordError;
+    return cardPassword !== null && cardPassword.toString().length === CARD_PASSWORD.maxLength && !cardPasswordError;
   };
   const getCardPasswordErrorMessage = () => {
     if (!cardPasswordError) return null;
@@ -16828,11 +16818,6 @@ const useProgressForm = () => {
   };
 };
 const appLayout = css`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-    
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -16972,7 +16957,7 @@ function HomePage() {
         }
       ),
       showCardBrand && /* @__PURE__ */ jsx$1(
-        CardBrand,
+        CardBrandDropdown,
         {
           value: brand,
           onChange,
@@ -16995,7 +16980,7 @@ function HomePage() {
         }
       )
     ] }),
-    showConfirmButton && /* @__PURE__ */ jsx$1(Link, { to: "/complete", state: { cardNumber, brand }, children: /* @__PURE__ */ jsx$1(Button, { content: "확인", style: "bottom" }) })
+    showConfirmButton && /* @__PURE__ */ jsx$1(Link, { to: "/complete", state: { cardNumber, brand }, style: { position: "sticky", bottom: 0 }, children: /* @__PURE__ */ jsx$1(Button, { content: "확인", variant: "full" }) })
   ] });
 }
 const pageContainer = css`
@@ -17027,7 +17012,7 @@ function CardRegistrationCompletePage() {
     return /* @__PURE__ */ jsx$1(Navigate, { to: "/", replace: true });
   }
   return /* @__PURE__ */ jsxs("div", { css: pageContainer, children: [
-    /* @__PURE__ */ jsx$1("img", { src: "/image/Complete.png", alt: "완료", css: completeImage }),
+    /* @__PURE__ */ jsx$1("img", { src: Complete, alt: "완료", css: completeImage }),
     /* @__PURE__ */ jsxs("h1", { css: title, children: [
       cardNumber.first,
       "로 시작하는",
@@ -17035,12 +17020,23 @@ function CardRegistrationCompletePage() {
       brand,
       "가 등록되었어요."
     ] }),
-    /* @__PURE__ */ jsx$1(Link, { to: "/", children: /* @__PURE__ */ jsx$1(Button, { content: "확인", style: "default" }) })
+    /* @__PURE__ */ jsx$1(
+      Button,
+      {
+        content: "확인",
+        variant: "rounded",
+        onClick: () => window.location.href = "/"
+      }
+    )
   ] });
 }
+const PATHS = {
+  HOME: "/*",
+  COMPLETE: "/complete"
+};
 const Router = () => /* @__PURE__ */ jsxs(Routes, { children: [
-  /* @__PURE__ */ jsx$1(Route, { path: "/*", element: /* @__PURE__ */ jsx$1(HomePage, {}) }),
-  /* @__PURE__ */ jsx$1(Route, { path: "/complete", element: /* @__PURE__ */ jsx$1(CardRegistrationCompletePage, {}) })
+  /* @__PURE__ */ jsx$1(Route, { path: PATHS.HOME, element: /* @__PURE__ */ jsx$1(HomePage, {}) }),
+  /* @__PURE__ */ jsx$1(Route, { path: PATHS.COMPLETE, element: /* @__PURE__ */ jsx$1(CardRegistrationCompletePage, {}) })
 ] });
 const Reset = css`
   html,
@@ -17209,6 +17205,10 @@ const GlobalStyle = css`
   }
 
   #root {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     min-width: var(--min-width);
     max-width: var(--max-width);
